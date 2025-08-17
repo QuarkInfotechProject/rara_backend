@@ -1,0 +1,42 @@
+- name: user_registration
+  title: User Registration
+  subject: User Registration
+  message: 'Please use the below verification code to register yourself. {CODE} . Thank You.'
+  description: 'Email to newly registered user. {EMAIL} - email address of user'
+
+- name: end_user_forgot_password
+  subject: Please reset your password
+  title: Reset Password
+  message: 'Dear  {FULLNAME}!,
+  Lost your password? Do not worry, just click on the link below to reset your password.
+  In case you do not get redirected to a browser,
+  please copy the link and open it in a browser.'
+  description: 'Email to user with password reset link.'
+
+- name: trip_completed
+  subject: Thank You for Staying with Us! We’d Love Your Feedback
+  title: We Appreciate Your Experience! Share Your Experience with Us
+  message: 'Dear {FULLNAME}!,
+  Thank you for choosing our homestay for your recent getaway! We hope you had a wonderful experience and created lasting memories during your stay.
+  To help us improve our services and assist future guests, we would greatly appreciate it if you could take a moment to review your trip. Your feedback is invaluable to us!
+  Please click the link below to share your thoughts:
+  {link}'
+  description: 'Email to user after trip is completed.'
+
+- name: new_inquire
+  subject: New Inquire Alert !!!
+  title: New Inquire Alert !!!
+  message: 'Dear Admin!,
+  We have received a new inquiry for a booking at our homestay. To help us provide the best experience for our guests, please review the details below:
+  Guest Name: {GUEST_NAME}, Guest Email: {GUEST_EMAIL}
+  Please check and update Admin Panel For Detailed Inquire'
+  description: 'Email to admin for new inquire.'
+
+- name: new_inquire_cta
+  subject: New Inquire CTA Alert !!!
+  title: New Inquire CTA Alert !!!
+  message: 'Dear Admin!,
+  We have received a new CTA. To help us provide the best experience for our guests, please review the details below:
+  Name: {GUEST_NAME}, Email: {GUEST_EMAIL}
+  Please check and update Admin Panel For Detailed CTA'
+  description: 'Email to admin for new cta inquire.'

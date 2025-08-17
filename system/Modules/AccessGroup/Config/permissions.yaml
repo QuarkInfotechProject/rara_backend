@@ -1,0 +1,144 @@
+# Permission related to Dashboard
+- name: view_dashboard
+  description: can view dashboard
+  section: Dashboard
+  isIndex: 1
+
+# Permission related to users
+- name: view_admin_users
+  description: can view all existing admin users
+  section: Admin User
+  isIndex: 1
+
+# Permission related to activity logs
+- name: view_activity_logs
+  description: can view all activity logs
+  section: Activity Log
+  isIndex: 1
+
+# Permission related to menu
+- name: view_menus
+  description: can view all menu
+  section: Menu
+  isIndex: 0
+
+# Permission related to roles
+- name: view_roles
+  description: can view all roles
+  section: Role
+  isIndex: 1
+
+# Permission related to media center
+- name: view_media_center
+  description: can view media center
+  section: Media center
+  isIndex: 1
+
+# Permission related to blog
+- name: view_blog
+  description: can view blog
+  section: Blog
+  isIndex: 1
+
+# Permission related to pages
+- name: view_pages
+  description: can view pages
+  section: Pages
+  isIndex: 1
+
+# Permission related to cta
+- name: view_cta
+  description: can view, change status cta
+  section: Cta
+  isIndex: 1
+
+# Permission related to faqs
+- name: view_faqs
+  description: can view faqs
+  section: Faqs
+  isIndex: 1
+
+# Permission related to Our Team
+- name: view_our_team
+  description: can view our_team
+  section: Our Team
+  isIndex: 1
+
+# Permission related to Tag
+- name: view_product
+  description: can view product
+  section: Product
+  isIndex: 1
+
+# Permission related to Why Us
+- name: view_why_us
+  description: can view why us
+  section: WhyUs
+  isIndex: 1
+
+# Permission related to Promotion
+- name: view_promotion
+  description: can view promotion
+  section: Promotion
+  isIndex: 1
+
+# Permission related to Reviews
+- name: view_review
+  description: can view review
+  section: Promotion
+  isIndex: 1
+
+# Permission related to User
+- name: view_user
+  description: can view user
+  section: User
+  isIndex: 1
+
+# Permission related to Agent
+- name: view_agent
+  description: can view agent
+  section: Agent
+  isIndex: 1
+
+# Permission related to Agent
+- name: view_booking
+  description: can view booking
+  section: Booking
+  isIndex: 1
+
+# Permission related to settings
+- name: view_system_configurations
+  description: can view all existing system configurations
+  section: System Configurations
+  isIndex: 1
+
+- name: view_setting_configurations
+  description: can view all existing system configurations
+  section: System Configurations
+  isIndex: 1
+
+- name: view_email_templates
+  description: can view all existing email templates
+  section: System Configurations
+  isIndex: 1
+
+- name: view_access_group
+  description: can view access group
+  section: System Configurations
+  isIndex: 1
+
+# Permission related to Cache
+- name: view_cache
+  description: can purge cache
+  section: Cache
+  isIndex: 1
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,250 @@
+[
+    {
+        "title": "Dashboard",
+        "sort_order": 1,
+        "icon": "layout-dashboard",
+        "url": "/",
+        "permission_name": "view_dashboard  ",
+        "status": 1
+    },
+    {
+        "title": "Review",
+        "sort_order": 8,
+        "icon": "message-2",
+        "url": "/reviews",
+        "permission_name": "view_review",
+        "status": 1
+    },
+    {
+        "title": "Booking",
+        "sort_order": 7,
+        "icon": "notes",
+        "url": "/bookings",
+        "permission_name": "view_booking",
+        "status": 1
+    },
+    {
+        "title": "Agent",
+        "sort_order": 18,
+        "icon": "users",
+        "url": "/agents",
+        "permission_name": "view_agent",
+        "status": 1
+    },
+    {
+        "title": "Activity Log",
+        "sort_order": 100,
+        "icon": "logs",
+        "url": "/activityLog",
+        "permission_name": "view_activity_logs",
+        "status": 0
+    },
+    {
+        "title": "Admin Users",
+        "sort_order": 20,
+        "icon": "users",
+        "url": "/admin/admin-users",
+        "permission_name": "view_admin_users",
+        "status": 1
+    },
+    {
+        "title": "Users",
+        "sort_order": 16,
+        "icon": "users",
+        "url": "/admin/users",
+        "permission_name": "view_user",
+        "status": 1
+    },
+    {
+        "title": "Media Center",
+        "sort_order": 5,
+        "icon": "photo-scan",
+        "url": "/media",
+        "permission_name": "view_media_center",
+        "status": 1
+    },
+    {
+        "title": "Blogs",
+        "sort_order": 5,
+        "icon": "article",
+        "url": null,
+        "permission_name": "view_blog",
+        "status": 1,
+        "children": [
+            {
+                "title": "Category",
+                "sort_order": 1,
+                "icon": "category-2",
+                "url": "/blog/categories",
+                "permission_name": "view_blog",
+                "status": 1
+            },
+            {
+                "title": "Blog",
+                "sort_order": 2,
+                "icon": "article",
+                "url": "/blog",
+                "permission_name": "view_blog",
+                "status": 1
+            }
+        ]
+    },
+    {
+        "title": "Pages",
+        "sort_order": 15,
+        "icon": "browser",
+        "url": null,
+        "permission_name": "view_pages",
+        "status": 1,
+        "children": [
+            {
+                "title": "Pages",
+                "sort_order": 1,
+                "icon": "browser",
+                "url": "/pages",
+                "permission_name": "view_pages",
+                "status": 1
+            },
+            {
+                "title": "WhyUs",
+                "sort_order": 2,
+                "icon": "help-octagon",
+                "url": "/why-us",
+                "permission_name": "view_why_us",
+                "status": 1
+            },
+            {
+                "title": "Promotion",
+                "sort_order": 3,
+                "icon": "ad",
+                "url": "/promotions",
+                "permission_name": "view_promotion",
+                "status": 1
+            },
+            {
+                "title": "Our Team",
+                "sort_order": 2,
+                "icon": "users",
+                "url": "/our-team",
+                "permission_name": "view_our_team",
+                "status": 1
+            },
+            {
+                "title": "FAQs",
+                "sort_order": 3,
+                "icon": "bubble-text",
+                "url": "/faqs",
+                "permission_name": "view_faqs",
+                "status": 1
+            }
+        ]
+    },
+    {
+        "title": "CTAs",
+        "sort_order": 16,
+        "icon": "mail-opened",
+        "url": "/cta",
+        "permission_name": "view_cta",
+        "status": 1
+    },
+    {
+        "title": "Product",
+        "sort_order": 3,
+        "icon": "building-warehouse",
+        "url": null,
+        "permission_name": "view_product",
+        "status": 1,
+        "children": [
+            {
+                "title": "Amenity",
+                "sort_order": 1,
+                "icon": "building-community",
+                "url": "/product/amenity",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Manager",
+                "sort_order": 2,
+                "icon": "user",
+                "url": "/product/manager",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Tag",
+                "sort_order": 3,
+                "icon": "tag",
+                "url": "/product/tag",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Homestay",
+                "sort_order": 4,
+                "icon": "home",
+                "url": "/product/homestay",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Experience",
+                "sort_order": 5,
+                "icon": "car",
+                "url": "/product/experience",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Circuit",
+                "sort_order": 6,
+                "icon": "bus",
+                "url": "/product/circuit",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Package",
+                "sort_order": 7,
+                "icon": "package",
+                "url": "/product/package",
+                "permission_name": "view_product",
+                "status": 1
+            }
+        ]
+    },
+    {
+        "title": "System Configurations",
+        "sort_order": 25,
+        "icon": "settings",
+        "url": null,
+        "permission_name": "view_system_configurations",
+        "status": 1,
+        "children": [
+            {
+                "title": "Email Templates",
+                "sort_order": 1,
+                "icon": "mail",
+                "url": "/email-template",
+                "permission_name": "view_email_templates",
+                "status": 1
+            },
+            {
+                "title": "Settings",
+                "sort_order": 2,
+                "icon": "settings",
+                "url": "/settings",
+                "permission_name": "view_setting_configurations",
+                "status": 1
+            },
+            {
+                "title": "Groups",
+                "sort_order": 1,
+                "icon": "users",
+                "url": "/roles",
+                "permission_name": "view_roles",
+                "status": 1
+            }
+        ]
+    }
+]

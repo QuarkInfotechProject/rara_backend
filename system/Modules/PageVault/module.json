@@ -1,0 +1,11 @@
+{
+    "name": "PageVault",
+    "alias": "pagevault",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PageVault\\App\\Providers\\PageVaultServiceProvider"
+    ],
+    "files": []
+}
