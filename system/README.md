@@ -5,13 +5,13 @@ load:permissions
 
 load:menu
 
-php8.1 artisan module:seed AdminUser
+php artisan module:seed AdminUser
 
-php8.1 artisan load:permissions
+php artisan load:permissions
 
-php8.1 artisan assign:role
+php artisan assign:role
 
-php8.1 artisan load:pages
+php artisan load:pages
 
 email:template
 
