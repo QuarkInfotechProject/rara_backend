@@ -22,7 +22,7 @@ jobs:
       - name: 🚀 Deploy Laravel via SSH
         run: |
           echo "Connecting and deploying Laravel..."
-          ssh -o StrictHostKeyChecking=no quark4330@45.117.153.69'
+          ssh -o StrictHostKeyChecking=no quark4330@45.117.153.69 "
             cd /home/quarkinfotech.com/rara.api.quarkinfotech.com/system   &&
             git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara_backend.git &&
             git pull origin main &&
