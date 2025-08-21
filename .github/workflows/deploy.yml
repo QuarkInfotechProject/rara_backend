@@ -2,32 +2,38 @@ name: 🚀 Deploy Laravel App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
+    name: Deploy via SSH
     runs-on: ubuntu-latest
+    environment: production
+
     steps:
       - name: ⏳ Checkout Repo
         uses: actions/checkout@v3
 
-      # This SSH key is for connecting to YOUR SERVER (not GitHub)
       - name: 🔐 Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: 🚀 Deploy Laravel via SSH
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
           echo "Connecting and deploying Laravel..."
-          ssh -o StrictHostKeyChecking=no quark4330@45.117.153.69 <<'REMOTE_CMDS'
-            set -e
-            cd /home/quarkinfotech.com/rara.api.quarkinfotech.com/system
-            git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara_backend.git
-            git pull origin main
-            composer install --no-interaction --prefer-dist --optimize-autoloader
-            # php artisan key:generate   # ← don't run on every deploy; generates a new key!
-            php artisan migrate --force
-            php artisan optimize:clear
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "
+            cd $DEPLOY_PATH &&
+            git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara_backend.git &&
+            git pull origin main &&
+            composer install --no-interaction --prefer-dist --optimize-autoloader &&
+            php artisan key:generate &&
+            php artisan migrate --force &&
+            php artisan optimize:clear &&
             php artisan config:cache
-REMOTE_CMDS
+          "
