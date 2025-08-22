@@ -12,6 +12,14 @@ class ProductOverview extends Model
         'name',
         'description',
         'order',
+        'duration',
+        'overview_location',
+        'trip_grade',
+        'max_altitude',
+        'group_size',
+        'activities',
+        'best_time',
+        'starts',
     ];
 
     public function product()

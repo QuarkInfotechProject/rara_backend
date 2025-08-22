@@ -43,6 +43,23 @@ class FetchCircuitDetailService
                     'id' => $item->id,
                     'name' => $item->name,
                     'description' => $item->description,
+                    'duration' => $item->duration ?? null,
+                    'overview_location' => $item->overview_location ?? null,
+                    'trip_grade' => $item->trip_grade ?? null,
+                    'max_altitude' => $item->max_altitude ?? null,
+                    'best_time' => $item->best_time ?? null,
+                    'group_size' => $item->group_size ?? null,
+                    'activities' => $item->activities ?? null,
+                    'starts' => $item->starts ?? null,
+                ];
+            })->toArray();
+
+            $data['departures'] = $product->departures->map(function ($departure) {
+                return [
+                    'id' => $departure->id,
+                    'departure_from' => $departure->departure_from,
+                    'departure_to' => $departure->departure_to,
+                    'departure_per_price' => $departure->departure_per_price,
                 ];
             })->toArray();
 
@@ -84,6 +101,7 @@ class FetchCircuitDetailService
                 'locationCover' => $this->getMediaFiles($product, 'locationCover'),
                 'howToGet' => $this->getMediaFiles($product, 'howToGet'),
                 'featuredImage' => $this->getMediaFiles($product, 'featuredImage'),
+                'faqImages' => $this->getMediaFiles($product, 'faqImages'),
             ];
 
             $entityMetadata = $product->meta()->first();
@@ -93,7 +111,7 @@ class FetchCircuitDetailService
                 'keywords' => isset($entityMetadata->meta_keywords) ? json_decode($entityMetadata->meta_keywords) : null,
                 'metaDescription' => $entityMetadata->meta_description ?? '',
             ];
-            
+
             $firstDossier = $product->dossiers->first();
 
             $data['dossiers'] = $firstDossier ? [

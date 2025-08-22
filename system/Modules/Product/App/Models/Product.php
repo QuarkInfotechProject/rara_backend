@@ -37,7 +37,7 @@ class Product extends Model
             'display_order', 'youtube_link',
             'latitude', 'longitude', 'location', 'average_rating', 'total_comment', 'status',
             'cancellation_policy', 'how_to_get', 'cornerstone', 'region', 'is_occupied',
-            'max_occupant', 'duration', 'display_homepage', 'short_code', 'impact'
+            'max_occupant', 'duration', 'display_homepage', 'short_code', 'impact','category_details'
         ];
 
     protected $casts = [
@@ -162,6 +162,10 @@ class Product extends Model
    public function dossiers()
     {
         return $this->hasMany(Dossier::class);
+    }
+    public function departures()
+    {
+        return $this->hasMany(ProductDeparture::class);
     }
 
 }
