@@ -33,10 +33,11 @@ class CreateCircuitService
                 'slug' => $data['slug'],
                 'short_code' => $data['short_code'],
                 'type' => $data['type'],
+                'category_details' => $data['category_details'],
                 'tagline' => $data['tagline'],
                 'short_description' => $data['short_description'],
                 'description' => $data['description'],
-                'display_order' => $data['display_order'],
+                'display_order' => $data['display_order']?? null,
                 'youtube_link' => $data['youtube_link'],
                 'latitude' => $data['latitude'],
                 'longitude' => $data['longitude'],
@@ -45,14 +46,14 @@ class CreateCircuitService
                 'how_to_get' => $data['how_to_get'],
                 'cornerstone' => $data['cornerstone'],
                 'is_occupied' => $data['is_occupied'],
-                'impact' => $data['impact'],
-                'display_homepage' => $data['display_homepage'],
-                'manager_id' => $data['manager_id'],
+                'impact' => $data['impact'] ?? '',
+                'display_homepage' => $data['display_homepage'] ?? '0',
+                'manager_id' => $data['manager_id']?? null,
             ]);
 
             $this->createProductPrices($product, $data['prices']);
             $this->createFaqs($product, $data['faqs']);
-            $this->createOverview($product, $data['overview']);
+            $this->createOverview($product, $data['overview'],$request);
             $this->createItinerary($product, $data['itinerary']);
             $this->attachIncluded($product, $data['included']);
             $this->attachExcluded($product, $data['excluded']);
@@ -60,6 +61,7 @@ class CreateCircuitService
             $this->attachRelatedBlogs($product, $data['related_blogs']);
             $this->attachTags($product, $data['tags']);
             $this->createDossier($product, $data['dossiers'], $request);
+            $this->createDepartures($product, $data['departures']);
 
             if (!empty($data['related_circuit']) && is_array($data['related_circuit'])) {
                 $this->attachRelatedCircuits($product, $data['related_circuit']);
@@ -85,7 +87,7 @@ class CreateCircuitService
     {
         foreach ($prices as $priceData) {
             $product->prices()->create([
-                'number_of_people' => $priceData['number_of_people'],
+                'number_of_people' => $priceData['number_of_people'] ?? 0,
                 'original_price_usd' => $priceData['original_price_usd'],
                 'discounted_price_usd' => $priceData['discounted_price_usd'],
             ]);
@@ -104,16 +106,44 @@ class CreateCircuitService
         }
     }
 
-    private function createOverview(Product $product, array $overviewItems)
+    private function createOverview(Product $product, array $overviewData)
     {
-        foreach ($overviewItems as $item) {
-            ProductOverview::create([
-                'product_id' => $product->id,
-                'name' => $item['name'],
-                'description' => $item['description'],
-            ]);
+        $overviewRecord = [
+            'product_id' => $product->id,
+            'name' => $this->getOverviewValue($overviewData, 'name'),
+            'description' => $this->getOverviewValue($overviewData, 'description'),
+            'duration' => $this->getOverviewValue($overviewData, 'duration'),
+            'overview_location' => $this->getOverviewValue($overviewData, 'overview_location'),
+            'trip_grade' => $this->getOverviewValue($overviewData, 'trip_grade'),
+            'max_altitude' => (int)$this->getOverviewValue($overviewData, 'max_altitude', 0),
+            'group_size' => (int)$this->getOverviewValue($overviewData, 'group_size', 0),
+            'activities' => $this->getOverviewValue($overviewData, 'activities'),
+            'best_time' => $this->getOverviewValue($overviewData, 'best_time'),
+            'starts' => $this->getOverviewValue($overviewData, 'starts'),
+        ];
+
+        try {
+            $created = ProductOverview::create($overviewRecord);
+            \Log::info('Successfully created overview with ID:', ['id' => $created->id]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to create overview:', ['error' => $e->getMessage()]);
+            throw $e;
         }
     }
+
+    private function getOverviewValue(array $data, string $key, $default = '')
+    {
+        if (isset($data[$key])) {
+            return $data[$key];
+        }
+
+        if (isset($data[0][$key])) {
+            return $data[0][$key];
+        }
+
+        return $default;
+    }
+
 
     private function createItinerary(Product $product, array $itineraryItems)
     {
@@ -155,7 +185,25 @@ class CreateCircuitService
     private function attachTags(Product $product, array $tagIds)
     {
         $product->tags()->attach($tagIds);
-    } 
+    }
+    private function createDepartures(Product $product, array $departures)
+    {
+        foreach ($departures as $departureData) {
+            if (isset($departureData['id']) && $departureData['id']) {
+                $product->departures()->where('id', $departureData['id'])->update([
+                    'departure_from' => $departureData['departure_from'] ?? null,
+                    'departure_to' => $departureData['departure_to'] ?? null,
+                    'departure_per_price' => $departureData['departure_per_price'] ?? null,
+                ]);
+            } else {
+                $product->departures()->create([
+                    'departure_from' => $departureData['departure_from'] ?? null,
+                    'departure_to' => $departureData['departure_to'] ?? null,
+                    'departure_per_price' => $departureData['departure_per_price'] ?? null,
+                ]);
+            }
+        }
+    }
 
     private function createDossier(Product $product, array $dossiers, $request)
     {
@@ -175,25 +223,23 @@ class CreateCircuitService
 
     }
 
-
-
     public function validateCircuitData(array $data)
     {
         return Validator::make($data, [
             'name' => 'required|string|max:150',
             'slug' => 'required|string|max:200|unique:products',
             'short_code' => 'required|string|max:50',
-            'type' => 'required|string|in:circuit',
+            'type' => 'required|string',
             'manager_id' => 'nullable|integer',
             'tagline' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'prices' => 'required|array|min:1',
-            'prices.*.number_of_people' => 'required|integer|min:1',
+            'prices.*.number_of_people' => 'required|integer|min:0',
             'prices.*.original_price_usd' => 'required|numeric|min:0',
             'prices.*.discounted_price_usd' => 'required|numeric|min:0',
             'variable_prices' => 'required_if:has_variable_pricing,true|array',
-            'variable_prices.*.number_of_people' => 'required_if:has_variable_pricing,true|integer|min:1',
+            'variable_prices.*.number_of_people' => 'required_if:has_variable_pricing,true|integer|min:0',
             'variable_prices.*.price' => 'required_if:has_variable_pricing,true|numeric|min:0',
             'display_order' => 'nullable|integer',
             'youtube_link' => 'nullable|string',
@@ -202,8 +248,8 @@ class CreateCircuitService
             'location' => 'required|string',
             'status' => 'required|string|in:draft,published',
             'how_to_get' => 'nullable|string',
-            'cornerstone' => 'required|boolean',
-            'is_occupied' => 'required|boolean',
+            'cornerstone' => 'nullable|in:0,1',
+            'is_occupied' => 'nullable|boolean',
             'impact' => 'nullable|string',
 
             'faqs' => 'required|array',
@@ -212,8 +258,18 @@ class CreateCircuitService
             'faqs.*.order' => 'required|integer',
 
             'overview' => 'required|array',
-            'overview.*.name' => 'required|string',
-            'overview.*.description' => 'required|string',
+            'overview.0.name' => 'nullable|string',
+            'overview.0.description' => 'nullable|string',
+            'overview.name' => 'nullable|string',
+            'overview.description' => 'nullable|string',
+            'overview.duration' => 'required|string',
+            'overview.overview_location' => 'required|string',
+            'overview.trip_grade' => 'required|string',
+            'overview.max_altitude' => 'required|integer',
+            'overview.group_size' => 'required|integer',
+            'overview.activities' => 'required|string',
+            'overview.best_time' => 'required|string',
+            'overview.starts' => 'required|string',
 
             'itinerary' => 'required|array',
             'itinerary.*.time_window' => 'required|string',
@@ -247,12 +303,20 @@ class CreateCircuitService
             'files.featuredImages.*' => 'exists:files,id',
             'files.galleryImages' => 'nullable|array',
             'files.galleryImages.*' => 'exists:files,id',
+            'files.faqImages' => 'nullable',
+            'files.faqImages.*' => 'exists:files,id',
             'files.locationCover' => 'nullable|exists:files,id',
             'files.howToGet' => 'nullable|exists:files,id',
 
             'dossiers' => 'required|array',
             'dossiers.content' => 'required|string',
             'dossiers.pdf_file' => 'required|file|mimes:pdf|max:5120',
+
+            'departures' => 'required|array',
+            'departures.*.id' => 'nullable|exists:product_departures,id',
+            'departures.*.departure_from' => 'required|string|max:255',
+            'departures.*.departure_to' => 'required|string|max:255',
+            'departures.*.departure_per_price' => 'required|string|max:255',
         ]);
     }
 }

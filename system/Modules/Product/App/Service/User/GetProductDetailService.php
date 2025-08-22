@@ -61,11 +61,28 @@ class GetProductDetailService
                 ];
             })->toArray();
 
+            $data['departures'] = $product->departures->map(function ($departure) {
+                return [
+                    'id' => $departure->id,
+                    'departure_from' => $departure->departure_from,
+                    'departure_to' => $departure->departure_to,
+                    'departure_per_price' => $departure->departure_per_price,
+                ];
+            })->toArray();
+
             $data['overview'] = $product->overview->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                     'description' => $item->description,
+                    'duration' => $item->duration,
+                    'overview_location' => $item->overview_location,
+                    'trip_grade' => $item->trip_grade,
+                    'max_altitude' => $item->max_altitude,
+                    'group_size' => $item->group_size,
+                    'activities' => $item->activities,
+                    'best_time' => $item->best_time,
+                    'starts' => $item->starts,
                 ];
             })->toArray();
 
@@ -104,6 +121,7 @@ class GetProductDetailService
                 'locationCover' => $this->getMediaFiles($product, 'locationCover'),
                 'hostCover' => $this->getMediaFiles($product, 'hostCover'),
                 'howToGet' => $this->getMediaFiles($product, 'howToGet'),
+                'faqImages' => $this->getMediaFiles($product, 'faqImages'),
             ];
 
             $data['itinerary'] = $product->itinerary->map(function ($item) {
@@ -239,6 +257,7 @@ class GetProductDetailService
                     'location' => $circuit->location,
                     'slug' => $circuit->slug,
                     'type' => $circuit->type,
+                    'category_details' => $circuit->category_details,
                     'total_rating' => $circuit->total_rating,
                     'average_rating' => $circuit->average_rating,
                     'tagline' => $circuit->tagline,
