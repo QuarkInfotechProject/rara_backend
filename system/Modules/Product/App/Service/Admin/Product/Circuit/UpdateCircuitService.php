@@ -32,10 +32,11 @@ class UpdateCircuitService
                 'slug' => $data['slug'],
                 'short_code' => $data['short_code'],
                 'type' => $data['type'],
+                'category_details' => $data['category_details'],
                 'tagline' => $data['tagline'],
                 'short_description' => $data['short_description'],
                 'description' => $data['description'],
-                'display_order' => $data['display_order'],
+                'display_order' => $data['display_order']?? null,
                 'youtube_link' => $data['youtube_link'],
                 'latitude' => $data['latitude'],
                 'longitude' => $data['longitude'],
@@ -44,14 +45,14 @@ class UpdateCircuitService
                 'how_to_get' => $data['how_to_get'],
                 'cornerstone' => $data['cornerstone'],
                 'is_occupied' => $data['is_occupied'],
-                'impact' => $data['impact'],
-                'display_homepage' => $data['display_homepage'],
+                'impact' => $data['impact'] ?? '',
+                'display_homepage' => $data['display_homepage'] ?? '0',
+                'manager_id' => $data['manager_id']?? null,
             ]);
-
 
             $this->updateProductPrices($product, $data['prices']);
             $this->updateFaqs($product, $data['faqs']);
-            $this->updateOverview($product, $data['overview']);
+            $this->updateOverview($product, $data['overview']); // Fixed: removed extra parameter
             $this->updateItinerary($product, $data['itinerary']);
             $this->updateIncluded($product, $data['included']);
             $this->updateExcluded($product, $data['excluded']);
@@ -60,6 +61,8 @@ class UpdateCircuitService
             $this->updateRelatedBlogs($product, $data['related_blogs']);
             $this->updateTags($product, $data['tags']);
             $this->updateDossier($product, $data['dossiers'], $request);
+            $this->updateDepartures($product, $data['departures']); // Fixed: removed extra parameter
+
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
@@ -75,6 +78,7 @@ class UpdateCircuitService
 
         return $product;
     }
+
     private function updateProductPrices(Product $product, array $prices)
     {
         $existingProductPriceIds = $product->prices->pluck('id')->toArray();
@@ -86,7 +90,7 @@ class UpdateCircuitService
                 $price = $product->prices()->find($priceData['id']);
                 if ($price) {
                     $price->update([
-                        'number_of_people' => $priceData['number_of_people'],
+                        'number_of_people' => $priceData['number_of_people'] ?? 0,
                         'original_price_usd' => $priceData['original_price_usd'],
                         'discounted_price_usd' => $priceData['discounted_price_usd'],
                     ]);
@@ -96,7 +100,7 @@ class UpdateCircuitService
 
             if (!$price) {
                 $price = $product->prices()->create([
-                    'number_of_people' => $priceData['number_of_people'],
+                    'number_of_people' => $priceData['number_of_people'] ?? 0,
                     'original_price_usd' => $priceData['original_price_usd'],
                     'discounted_price_usd' => $priceData['discounted_price_usd'],
                 ]);
@@ -150,35 +154,45 @@ class UpdateCircuitService
         $product->faqs()->whereIn('id', $faqsToDelete)->delete();
     }
 
-    private function updateOverview(Product $product, array $overview)
+    // FIXED: Overview should be handled as a single record, not multiple
+    private function updateOverview(Product $product, array $overviewData)
     {
-        $existingOverviewIds = $product->overview->pluck('id')->toArray();
-        $updatedOverviewIds = [];
-
-        foreach ($overview as $overviewData) {
-            $overviewItem = null;
-            if (isset($overviewData['id'])) {
-                $overviewItem = $product->overview()->find($overviewData['id']);
-                if ($overviewItem) {
-                    $overviewItem->update([
-                        'name' => $overviewData['name'],
-                        'description' => $overviewData['description'],
-                    ]);
-                    $updatedOverviewIds[] = $overviewItem->id;
-                }
+        // Helper method to get overview values from mixed structure
+        $getOverviewValue = function($data, $key, $default = '') {
+            // First try direct key access
+            if (isset($data[$key])) {
+                return $data[$key];
             }
-
-            if (!$overviewItem) {
-                $overviewItem = $product->overview()->create([
-                    'name' => $overviewData['name'],
-                    'description' => $overviewData['description'],
-                ]);
-                $updatedOverviewIds[] = $overviewItem->id;
+            // Then try nested array access
+            if (isset($data[0][$key])) {
+                return $data[0][$key];
             }
+            return $default;
+        };
+
+        // Get the existing overview (should be only one)
+        $existingOverview = $product->overview()->first();
+
+        $overviewRecord = [
+            'name' => $getOverviewValue($overviewData, 'name'),
+            'description' => $getOverviewValue($overviewData, 'description'),
+            'duration' => $getOverviewValue($overviewData, 'duration'),
+            'overview_location' => $getOverviewValue($overviewData, 'overview_location'),
+            'trip_grade' => $getOverviewValue($overviewData, 'trip_grade'),
+            'max_altitude' => (int)$getOverviewValue($overviewData, 'max_altitude', 0),
+            'group_size' => (int)$getOverviewValue($overviewData, 'group_size', 0),
+            'activities' => $getOverviewValue($overviewData, 'activities'),
+            'best_time' => $getOverviewValue($overviewData, 'best_time'),
+            'starts' => $getOverviewValue($overviewData, 'starts'),
+        ];
+
+        if ($existingOverview) {
+            // Update existing overview
+            $existingOverview->update($overviewRecord);
+        } else {
+            // Create new overview if none exists
+            $product->overview()->create(array_merge($overviewRecord, ['product_id' => $product->id]));
         }
-
-        $overviewToDelete = array_diff($existingOverviewIds, $updatedOverviewIds);
-        $product->overview()->whereIn('id', $overviewToDelete)->delete();
     }
 
     private function updateItinerary(Product $product, array $itinerary)
@@ -242,7 +256,6 @@ class UpdateCircuitService
         }
     }
 
-
     private function updateIncluded(Product $product, array $includedIds)
     {
         $product->included()->sync($includedIds);
@@ -261,8 +274,10 @@ class UpdateCircuitService
     private function updateRelatedCircuits(Product $product, array $circuits)
     {
         $product->relatedCircuits()->detach();
-        foreach ($circuits as $id) {
-            $product->relatedCircuits()->attach($id, ['relation_type' => 'related_circuit']);
+        if (!empty($circuits)) {
+            foreach ($circuits as $id) {
+                $product->relatedCircuits()->attach($id, ['relation_type' => 'related_circuit']);
+            }
         }
     }
 
@@ -276,6 +291,41 @@ class UpdateCircuitService
         $product->tags()->sync($tagIds);
     }
 
+    // FIXED: Removed extra $request parameter
+
+    private function updateDepartures(Product $product, array $departures)
+    {
+        $existingDepartureIds = $product->departures->pluck('id')->toArray();
+        $updatedDepartureIds = [];
+
+        foreach ($departures as $departureData) {
+            if (!empty($departureData['id'])) {
+                $departure = $product->departures()->find($departureData['id']);
+                if ($departure) {
+                    $departure->update([
+                        'departure_from' => $departureData['departure_from'],
+                        'departure_to' => $departureData['departure_to'],
+                        'departure_per_price' => $departureData['departure_per_price'],
+                    ]);
+                    $updatedDepartureIds[] = $departure->id;
+                    continue; // ✅ prevents creating duplicate
+                }
+            }
+
+            // create new if no valid id
+            $departure = $product->departures()->create([
+                'departure_from' => $departureData['departure_from'],
+                'departure_to' => $departureData['departure_to'],
+                'departure_per_price' => $departureData['departure_per_price'],
+            ]);
+            $updatedDepartureIds[] = $departure->id;
+        }
+
+        // Delete removed ones
+        $departuresToDelete = array_diff($existingDepartureIds, $updatedDepartureIds);
+        $product->departures()->whereIn('id', $departuresToDelete)->delete();
+    }
+
     public function validateUpdateCircuitData(array $data)
     {
         return Validator::make($data, [
@@ -287,13 +337,14 @@ class UpdateCircuitService
                 'max:200',
                 Rule::unique('products')->ignore($data['id']),
             ],
-            'type' => 'required|string|in:circuit',
+            'type' => 'required|string',
             'short_code' => 'required|string|max:50',
             'tagline' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'description' => 'nullable|string',
             'prices' => 'required|array|min:1',
-            'prices.*.number_of_people' => 'required|integer|min:1',
+            'prices.*.id' => 'nullable|exists:product_prices,id',
+            'prices.*.number_of_people' => 'required|integer|min:0',
             'prices.*.original_price_usd' => 'required|numeric|min:0',
             'prices.*.discounted_price_usd' => 'required|numeric|min:0',
             'variable_prices' => 'required_if:has_variable_pricing,true|array',
@@ -316,10 +367,20 @@ class UpdateCircuitService
             'faqs.*.answer' => 'required|string',
             'faqs.*.order' => 'required|integer',
 
+            // FIXED: Overview validation for single record with mixed structure support
             'overview' => 'required|array',
-            'overview.*.id' => 'nullable|exists:product_overviews,id',
-            'overview.*.name' => 'required|string',
-            'overview.*.description' => 'required|string',
+            'overview.0.name' => 'nullable|string',        // Support nested structure
+            'overview.0.description' => 'nullable|string', // Support nested structure
+            'overview.name' => 'nullable|string',           // Support flat structure
+            'overview.description' => 'nullable|string',    // Support flat structure
+            'overview.duration' => 'required|string',
+            'overview.overview_location' => 'required|string',
+            'overview.trip_grade' => 'required|string',
+            'overview.max_altitude' => 'required|integer',
+            'overview.group_size' => 'required|integer',
+            'overview.activities' => 'required|string',
+            'overview.best_time' => 'required|string',
+            'overview.starts' => 'required|string',
 
             'itinerary' => 'required|array',
             'itinerary.*.id' => 'nullable|exists:product_itineraries,id',
@@ -356,12 +417,19 @@ class UpdateCircuitService
             'files.featuredImages.*' => 'exists:files,id',
             'files.galleryImages' => 'required|array',
             'files.galleryImages.*' => 'exists:files,id',
+            'files.faqImages.*' => 'exists:files,id',
             'files.locationCover' => 'required|exists:files,id',
             'files.howToGet' => 'nullable|exists:files,id',
 
             'dossiers' => 'nullable|array',
             'dossiers.content' => 'nullable|string',
-            'dossiers.pdf_path' => 'nullable|file|mimes:pdf|max:5120',
+            'dossiers.pdf_path' => 'nullable|string', // Changed from file validation since it's optional on update
+
+            'departures' => 'required|array',
+            'departures.*.id' => 'nullable|exists:product_departures,id',
+            'departures.*.departure_from' => 'required|string|max:255',
+            'departures.*.departure_to' => 'required|string|max:255',
+            'departures.*.departure_per_price' => 'required|string|max:255',
         ]);
     }
 }

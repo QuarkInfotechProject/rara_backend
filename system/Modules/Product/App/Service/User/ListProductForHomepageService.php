@@ -15,7 +15,7 @@ class ListProductForHomepageService
             $query = $this->getBaseQuery();
             $query->where('type', $type);
             $products = $query->get();
-
+            
             return $this->transformProducts($products);
 
         } catch (\Exception $exception) {
