@@ -74,7 +74,7 @@ class Product extends Model
     {
         return $this->belongsToMany(Amenity::class, 'product_excluded')
             ->where('amenities.category', 'excluded');
-    }
+    }  // apply product name filter only if provided
 
     public function whatToBring(): BelongsToMany
     {

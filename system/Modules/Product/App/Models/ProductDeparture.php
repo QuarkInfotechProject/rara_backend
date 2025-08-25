@@ -18,6 +18,7 @@ class ProductDeparture extends Model
         'departure_from',
         'departure_to',
         'departure_per_price',
+        'max_team_members',
     ];
 
     /**
