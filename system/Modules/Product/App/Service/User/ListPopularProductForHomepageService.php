@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Product\App\Models\Product;
 
-class ListProductForHomepageService
+class ListPopularProductForHomepageService
 {
     public function getPaginatedProducts($type)
     {
@@ -29,27 +29,26 @@ class ListProductForHomepageService
             ->select([
                 'products.id',
                 'products.name',
-                'products.tagline',
                 'products.slug',
                 'products.type',
-                'products.display_order',
-                'products.latitude',
-                'products.longitude',
-                'products.location',
-                'products.average_rating',
-                'products.total_rating'
+                'products.created_at',
+                'products.updated_at',
             ])
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
             ->where('products.display_homepage', true)
             ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
-            ->with(['tags' => function($query) {
-                $query->select('tags.id', 'tags.name', 'tags.description', 'display_order', 'zoom_level', 'tags.slug', 'tags.latitude', 'tags.longitude');
-            }])
-            ->with(['prices' => function($query) {
-                $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
-                    ->orderBy('number_of_people', 'asc');
-            }]);
+//            ->with(['tags' => function($query) {
+//                $query->select('tags.id', 'tags.name', 'tags.description', 'display_order', 'zoom_level', 'tags.slug', 'tags.latitude', 'tags.longitude');
+//            }])
+        ->with([
+                'prices' => function($query) {
+                    $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
+                        ->orderBy('number_of_people', 'asc');
+                },
+                'overview',
+                'departures'
+            ]);
 
         $user = Auth::guard('user')->user();
 
@@ -71,14 +70,14 @@ class ListProductForHomepageService
     {
         return $products->map(function ($product) {
             $product->featuredImage = $this->getMediaFiles($product, 'featuredImage');
-            $product->featuredImages = $this->getMediaFiles($product, 'featuredImages', true);
-            $product->tags = $product->tags->map(function ($tag) {
-                return [
-                    'id' => $tag->id,
-                    'name' => $tag->name,
-                    'slug' => $tag->slug,
-                ];
-            })->values()->toArray();
+//            $product->featuredImages = $this->getMediaFiles($product, 'featuredImages', true);
+//            $product->tags = $product->tags->map(function ($tag) {
+//                return [
+//                    'id' => $tag->id,
+//                    'name' => $tag->name,
+//                    'slug' => $tag->slug,
+//                ];
+//            })->values()->toArray();
             $product->prices = $product->prices->map(function ($price) {
                 return [
                     'number_of_people' => $price->number_of_people,
@@ -86,6 +85,35 @@ class ListProductForHomepageService
                     'discounted_price_usd' => $price->discounted_price_usd,
                 ];
             })->values()->toArray();
+
+            if ($product->overview) {
+                $product->overview = [
+                    'name' => $product->overview->name,
+                    'description' => $product->overview->description,
+                    'duration' => $product->overview->duration,
+//                    'overview_location' => $product->overview->overview_location,
+                    'trip_grade' => $product->overview->trip_grade,
+//                    'max_altitude' => $product->overview->max_altitude,
+                    'group_size' => $product->overview->group_size,
+//                    'activities' => $product->overview->activities,
+//                    'best_time' => $product->overview->best_time,
+                    'starts' => $product->overview->starts,
+                ];
+            } else {
+                $product->overview = [];
+            }
+
+            // Add departures
+            $product->departures = $product->departures->map(function ($departure) {
+                return [
+                    'id' => $departure->id,
+                    'departure_from' => $departure->departure_from,
+                    'departure_to' => $departure->departure_to,
+                    'departure_per_price' => $departure->departure_per_price,
+                    'max_team_members' => $departure->max_team_members,
+                ];
+            })->values()->toArray();
+
             return $product;
         });
     }

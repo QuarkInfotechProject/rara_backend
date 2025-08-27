@@ -60,6 +60,7 @@ class FetchCircuitDetailService
                     'departure_from' => $departure->departure_from,
                     'departure_to' => $departure->departure_to,
                     'departure_per_price' => $departure->departure_per_price,
+                    'max_team_members' => $departure->max_team_members,
                 ];
             })->toArray();
 
@@ -68,7 +69,7 @@ class FetchCircuitDetailService
                     'id' => $prices->id,
                     'number_of_people' => $prices->number_of_people,
                     'original_price_usd' => $prices->original_price_usd,
-                    'discounted_price_usd' =>  $prices->discounted_price_usd
+                    'discounted_price_usd' =>  $prices->discounted_price_usd,
                 ];
             })->toArray();
 

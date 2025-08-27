@@ -194,12 +194,15 @@ class CreateCircuitService
                     'departure_from' => $departureData['departure_from'] ?? null,
                     'departure_to' => $departureData['departure_to'] ?? null,
                     'departure_per_price' => $departureData['departure_per_price'] ?? null,
+                    'max_team_members' => $departureData['max_team_members'] ?? null,
+
                 ]);
             } else {
                 $product->departures()->create([
                     'departure_from' => $departureData['departure_from'] ?? null,
                     'departure_to' => $departureData['departure_to'] ?? null,
                     'departure_per_price' => $departureData['departure_per_price'] ?? null,
+                    'max_team_members' => $departureData['max_team_members'] ?? null,
                 ]);
             }
         }

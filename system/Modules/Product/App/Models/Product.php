@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\Blog\App\Models\Blog;
 use Modules\Media\Trait\HasMedia;
 use Modules\Meta\Trait\HasMetaData;
@@ -154,9 +155,14 @@ class Product extends Model
         return $this->relatedProducts()->wherePivot('relation_type', 'related_experience');
     }
 
-    public function overview(): HasMany
+//    public function overview(): HasMany
+//    {
+//        return $this->hasMany(ProductOverview::class);
+//    }
+
+    public function overview(): HasOne
     {
-        return $this->hasMany(ProductOverview::class);
+        return $this->hasOne(ProductOverview::class);
     }
 
    public function dossiers()

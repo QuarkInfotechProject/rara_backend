@@ -306,6 +306,7 @@ class UpdateCircuitService
                         'departure_from' => $departureData['departure_from'],
                         'departure_to' => $departureData['departure_to'],
                         'departure_per_price' => $departureData['departure_per_price'],
+                        'max_team_members' => $departureData['max_team_members'] ?? null,
                     ]);
                     $updatedDepartureIds[] = $departure->id;
                     continue; // ✅ prevents creating duplicate
@@ -317,6 +318,7 @@ class UpdateCircuitService
                 'departure_from' => $departureData['departure_from'],
                 'departure_to' => $departureData['departure_to'],
                 'departure_per_price' => $departureData['departure_per_price'],
+                'max_team_members' => $departureData['max_team_members'] ?? null,
             ]);
             $updatedDepartureIds[] = $departure->id;
         }
