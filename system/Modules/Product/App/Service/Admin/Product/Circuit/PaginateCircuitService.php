@@ -11,7 +11,7 @@ class PaginateCircuitService
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = Product::query()
-            ->where('type', 'circuit')
+//            ->where('type', 'trek')
             ->select([
                 'id',
                 'name',
