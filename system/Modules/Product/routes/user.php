@@ -17,6 +17,8 @@ use Modules\Product\App\Http\Controllers\User\Product\ListTrekForHomepageControl
 use Modules\Product\App\Http\Controllers\User\Product\ListTourForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListActivitiesForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListSafariForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListHeroProductForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListPopularProductForHomepageController;
 /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -66,4 +68,9 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'homepage']
     Route::get('product-list/activities', ListActivitiesForHomepageController::class);
 
     Route::get('product-list/safaris', ListSafariForHomepageController::class);
+
+    Route::get('hero/list', ListHeroProductForHomepageController::class);
+
+    Route::get('popular/product/{type}', ListPopularProductForHomepageController::class);
+
 });
