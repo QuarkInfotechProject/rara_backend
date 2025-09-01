@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('duration', 255)->nullable()->after('order');
             $table->string('overview_location', 255)->nullable()->after('duration');
             $table->string('trip_grade', 255)->nullable()->after('overview_location');
-            $table->integer('max_altitude')->nullable()->after('trip_grade');
+            $table->string('max_altitude', 255)->nullable()->after('trip_grade');
             $table->integer('group_size')->nullable()->after('max_altitude');
             $table->text('activities')->nullable()->after('group_size');
             $table->string('best_time', 255)->nullable()->after('activities');

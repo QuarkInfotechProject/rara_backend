@@ -153,6 +153,12 @@ class CreateCircuitService
                 'time_window' => $item['time_window'],
                 'activity' => $item['activity'],
                 'order' => $item['order'],
+                'duration' => $item['duration'],
+                'location' => $item['location'],
+                'max_altitude' => $item['max_altitude'],
+                'activities' => $item['activities'],
+                'accommodation' => $item['accommodation'],
+                'meal' => $item['meal'],
             ]);
         }
     }
@@ -306,13 +312,13 @@ class CreateCircuitService
             'files.featuredImages.*' => 'exists:files,id',
             'files.galleryImages' => 'nullable|array',
             'files.galleryImages.*' => 'exists:files,id',
-            'files.faqImages' => 'nullable',
+            'files.faqImages' => 'required|array',
             'files.faqImages.*' => 'exists:files,id',
             'files.locationCover' => 'nullable|exists:files,id',
             'files.howToGet' => 'nullable|exists:files,id',
 
             'dossiers' => 'required|array',
-            'dossiers.content' => 'required|string',
+            'dossiers.content' => 'nullable|string',
             'dossiers.pdf_file' => 'required|file|mimes:pdf|max:5120',
 
             'departures' => 'required|array',

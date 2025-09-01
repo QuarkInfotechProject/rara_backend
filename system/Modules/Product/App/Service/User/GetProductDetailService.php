@@ -18,13 +18,14 @@ class GetProductDetailService
             $query = Product::with([
                 'faqs',
                 'highlights',
-                'included',
                 'nearbyHomestays',
                 'relatedBlogs',
                 'tags',
                 'prices',
                 'whatToBring',
                 'itinerary',
+                'included',
+                'excluded',
                 'overview',
                 'dossiers'
             ])->where('slug', $slug);
@@ -70,27 +71,25 @@ class GetProductDetailService
                 ];
             })->toArray();
 
-            $data['overview'] = $product->overview->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'description' => $item->description,
-                    'duration' => $item->duration,
-                    'overview_location' => $item->overview_location,
-                    'trip_grade' => $item->trip_grade,
-                    'max_altitude' => $item->max_altitude,
-                    'group_size' => $item->group_size,
-                    'activities' => $item->activities,
-                    'best_time' => $item->best_time,
-                    'starts' => $item->starts,
-                ];
-            })->toArray();
+            $data['overview'] = $product->overview ? [
+                'id' => $product->overview->id,
+                'name' => $product->overview->name,
+                'description' => $product->overview->description,
+                'duration' => $product->overview->duration,
+                'overview_location' => $product->overview->overview_location,
+                'trip_grade' => $product->overview->trip_grade,
+                'max_altitude' => $product->overview->max_altitude,
+                'group_size' => $product->overview->group_size,
+                'activities' => $product->overview->activities,
+                'best_time' => $product->overview->best_time,
+                'starts' => $product->overview->starts,
+            ] : null;
 
             $data['hosts'] = $product->homestayHosts->map(function ($host) {
                 return [
                     'id' => $host->id,
                     'profileImage' => $host->files->first()->path . '/' . $host->files->first()->temp_filename ?: null,
-                    'fullname' => $host->fullname,
+                    'fullName' => $host->fullname,
                     'description' => $host->description,
                 ];
             })->toArray();
@@ -118,10 +117,10 @@ class GetProductDetailService
                 'featuredImage' => $this->getMediaFiles($product, 'featuredImage'),
                 'featuredImages' => $this->getMediaFiles($product, 'featuredImages', true),
                 'galleryImages' => $this->getMediaFiles($product, 'galleryImages', true),
-                'locationCover' => $this->getMediaFiles($product, 'locationCover'),
+                'altitudeChart' => $this->getMediaFiles($product, 'locationCover'),
                 'hostCover' => $this->getMediaFiles($product, 'hostCover'),
-                'howToGet' => $this->getMediaFiles($product, 'howToGet'),
-                'faqImages' => $this->getMediaFiles($product, 'faqImages'),
+                'location' => $this->getMediaFiles($product, 'howToGet'),
+                'faqImages' => $this->getMediaFiles($product, 'faqImages',true),
             ];
 
             $data['itinerary'] = $product->itinerary->map(function ($item) {
@@ -130,6 +129,12 @@ class GetProductDetailService
                     'time_window' => $item->time_window,
                     'activity' => $item->activity,
                     'order' => $item->order,
+                    'duration' => $item->duration,
+                    'location' => $item->location,
+                    'max_altitude' => $item->max_altitude,
+                    'activities' => $item->activities,
+                    'accommodation' => $item->accommodation,
+                    'meal' => $item->meal,
                 ];
             })->toArray();
 
@@ -151,95 +156,104 @@ class GetProductDetailService
                 ];
             })->toArray();
 
-            $data['nearby_homestays'] = $product->nearbyHomestays->map(function ($homestay) {
+            $data['excluded'] = $product->excluded->map(function ($item) {
                 return [
-                    'id' => $homestay->id,
-                    'name' => $homestay->name,
-                    'featuredImage' => $this->getMediaFiles($homestay, 'featuredImage'),
-                    'featuredImages' => $this->getMediaFiles($homestay, 'featuredImages', true),
-                    'prices' => $homestay->prices->map(function ($price) {
-                        return [
-                            'number_of_people' => $price->number_of_people,
-                            'original_price_usd' => $price->original_price_usd,
-                            'discounted_price_usd' => $price->discounted_price_usd,
-                        ];
-                    })->sortBy('number_of_people')->values()->toArray(),
-                    'location' => $homestay->location,
-                    'slug' => $homestay->slug,
-                    'type' => $homestay->type,
-                    'total_rating' => $homestay->total_rating,
-                    'average_rating' => $homestay->average_rating,
-                    'tagline' => $homestay->tagline,
-                    'tags' => $homestay->tags->map(function ($tag) {
-                        return [
-                            'id' => $tag->id,
-                            'name' => $tag->name,
-                            'slug' => $tag->slug,
-                            'description' => $tag->description,
-                        ];
-                    })->toArray(),
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'icon' => $item->icon,
+                    'description' => $item->description,
                 ];
             })->toArray();
 
-            $data['related_homestays'] = $product->relatedHomestaysForExperience->map(function ($homestay) {
-                return [
-                    'id' => $homestay->id,
-                    'name' => $homestay->name,
-                    'featuredImage' => $this->getMediaFiles($homestay, 'featuredImage'),
-                    'featuredImages' => $this->getMediaFiles($homestay, 'featuredImages', true),
-                    'prices' => $homestay->prices->map(function ($price) {
-                        return [
-                            'number_of_people' => $price->number_of_people,
-                            'original_price_usd' => $price->original_price_usd,
-                            'discounted_price_usd' => $price->discounted_price_usd,
-                        ];
-                    })->sortBy('number_of_people')->values()->toArray(),
-                    'location' => $homestay->location,
-                    'slug' => $homestay->slug,
-                    'type' => $homestay->type,
-                    'total_rating' => $homestay->total_rating,
-                    'average_rating' => $homestay->average_rating,
-                    'tagline' => $homestay->tagline,
-                    'tags' => $homestay->tags->map(function ($tag) {
-                        return [
-                            'id' => $tag->id,
-                            'name' => $tag->name,
-                            'slug' => $tag->slug,
-                            'description' => $tag->description,
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
-
-            $data['related_experiences'] = $product->relatedExperience->map(function ($experiences) {
-                return [
-                    'id' => $experiences->id,
-                    'name' => $experiences->name,
-                    'featuredImage' => $this->getMediaFiles($experiences, 'featuredImage'),
-                    'featuredImages' => $this->getMediaFiles($experiences, 'featuredImages', true),
-                    'prices' => $experiences->prices->map(function ($price) {
-                        return [
-                            'number_of_people' => $price->number_of_people,
-                            'original_price_usd' => $price->original_price_usd,
-                            'discounted_price_usd' => $price->discounted_price_usd,
-                        ];
-                    })->sortBy('number_of_people')->values()->toArray(),
-                    'location' => $experiences->location,
-                    'slug' => $experiences->slug,
-                    'type' => $experiences->type,
-                    'total_rating' => $experiences->total_rating,
-                    'average_rating' => $experiences->average_rating,
-                    'tagline' => $experiences->tagline,
-                    'tags' => $experiences->tags->map(function ($tag) {
-                        return [
-                            'id' => $tag->id,
-                            'name' => $tag->name,
-                            'slug' => $tag->slug,
-                            'description' => $tag->description,
-                        ];
-                    })->toArray(),
-                ];
-            })->toArray();
+//            $data['nearby_homestays'] = $product->nearbyHomestays->map(function ($homestay) {
+//                return [
+//                    'id' => $homestay->id,
+//                    'name' => $homestay->name,
+//                    'featuredImage' => $this->getMediaFiles($homestay, 'featuredImage'),
+//                    'featuredImages' => $this->getMediaFiles($homestay, 'featuredImages', true),
+//                    'prices' => $homestay->prices->map(function ($price) {
+//                        return [
+//                            'number_of_people' => $price->number_of_people,
+//                            'original_price_usd' => $price->original_price_usd,
+//                            'discounted_price_usd' => $price->discounted_price_usd,
+//                        ];
+//                    })->sortBy('number_of_people')->values()->toArray(),
+//                    'location' => $homestay->location,
+//                    'slug' => $homestay->slug,
+//                    'type' => $homestay->type,
+//                    'total_rating' => $homestay->total_rating,
+//                    'average_rating' => $homestay->average_rating,
+//                    'tagline' => $homestay->tagline,
+//                    'tags' => $homestay->tags->map(function ($tag) {
+//                        return [
+//                            'id' => $tag->id,
+//                            'name' => $tag->name,
+//                            'slug' => $tag->slug,
+//                            'description' => $tag->description,
+//                        ];
+//                    })->toArray(),
+//                ];
+//            })->toArray();
+//
+//            $data['related_homestays'] = $product->relatedHomestaysForExperience->map(function ($homestay) {
+//                return [
+//                    'id' => $homestay->id,
+//                    'name' => $homestay->name,
+//                    'featuredImage' => $this->getMediaFiles($homestay, 'featuredImage'),
+//                    'featuredImages' => $this->getMediaFiles($homestay, 'featuredImages', true),
+//                    'prices' => $homestay->prices->map(function ($price) {
+//                        return [
+//                            'number_of_people' => $price->number_of_people,
+//                            'original_price_usd' => $price->original_price_usd,
+//                            'discounted_price_usd' => $price->discounted_price_usd,
+//                        ];
+//                    })->sortBy('number_of_people')->values()->toArray(),
+//                    'location' => $homestay->location,
+//                    'slug' => $homestay->slug,
+//                    'type' => $homestay->type,
+//                    'total_rating' => $homestay->total_rating,
+//                    'average_rating' => $homestay->average_rating,
+//                    'tagline' => $homestay->tagline,
+//                    'tags' => $homestay->tags->map(function ($tag) {
+//                        return [
+//                            'id' => $tag->id,
+//                            'name' => $tag->name,
+//                            'slug' => $tag->slug,
+//                            'description' => $tag->description,
+//                        ];
+//                    })->toArray(),
+//                ];
+//            })->toArray();
+//
+//            $data['related_experiences'] = $product->relatedExperience->map(function ($experiences) {
+//                return [
+//                    'id' => $experiences->id,
+//                    'name' => $experiences->name,
+//                    'featuredImage' => $this->getMediaFiles($experiences, 'featuredImage'),
+//                    'featuredImages' => $this->getMediaFiles($experiences, 'featuredImages', true),
+//                    'prices' => $experiences->prices->map(function ($price) {
+//                        return [
+//                            'number_of_people' => $price->number_of_people,
+//                            'original_price_usd' => $price->original_price_usd,
+//                            'discounted_price_usd' => $price->discounted_price_usd,
+//                        ];
+//                    })->sortBy('number_of_people')->values()->toArray(),
+//                    'location' => $experiences->location,
+//                    'slug' => $experiences->slug,
+//                    'type' => $experiences->type,
+//                    'total_rating' => $experiences->total_rating,
+//                    'average_rating' => $experiences->average_rating,
+//                    'tagline' => $experiences->tagline,
+//                    'tags' => $experiences->tags->map(function ($tag) {
+//                        return [
+//                            'id' => $tag->id,
+//                            'name' => $tag->name,
+//                            'slug' => $tag->slug,
+//                            'description' => $tag->description,
+//                        ];
+//                    })->toArray(),
+//                ];
+//            })->toArray();
 
             $data['related_circuit'] = $product->relatedCircuits->map(function ($circuit) {
                 return [
@@ -390,23 +404,42 @@ class GetProductDetailService
         })->toArray();
     }
 
+//    private function getMediaFiles($post, $type, $multiple = false)
+//    {
+//        $baseImageFiles = $post->filterFiles($type)->get();
+//
+//        if ($multiple) {
+//            return $baseImageFiles->map(function ($file) {
+//                return
+//                    $file->path . '/' . $file->temp_filename ?? '';
+//            })->toArray();
+//        } else {
+//            $baseImage = $baseImageFiles->map(function ($file) {
+//                return
+//                     $file->path . '/' . $file->temp_filename ?? ''
+//                ;
+//            })->first();
+//
+//            return $baseImage ?? '';
+//        }
+//    }
     private function getMediaFiles($post, $type, $multiple = false)
     {
         $baseImageFiles = $post->filterFiles($type)->get();
 
         if ($multiple) {
             return $baseImageFiles->map(function ($file) {
-                return
-                    $file->path . '/' . $file->temp_filename ?? '';
+                return [
+                    'id' => $file->id,
+                    'url' => $file->path . '/' . $file->temp_filename,
+                ];
             })->toArray();
         } else {
-            $baseImage = $baseImageFiles->map(function ($file) {
-                return
-                     $file->path . '/' . $file->temp_filename ?? ''
-                ;
-            })->first();
-
-            return $baseImage ?? '';
+            $file = $baseImageFiles->first();
+            return $file ? [
+                'id' => $file->id,
+                'url' => $file->path . '/' . $file->temp_filename,
+            ] : null;
         }
     }
 
