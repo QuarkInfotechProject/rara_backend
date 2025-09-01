@@ -11,6 +11,12 @@ class ProductItinerary extends Model
         'time_window',
         'activity',
         'order',
+        'duration',
+        'location',
+        'max_altitude',
+        'activities',
+        'accommodation',
+        'meal',
     ];
 
     public function product()

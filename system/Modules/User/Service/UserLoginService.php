@@ -25,7 +25,7 @@ class UserLoginService
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            RateLimiter::hit($this->throttleKey(), $seconds = 1800);
+            RateLimiter::hit($this->throttleKey(), $seconds = 18);
             throw new Exception('Email & Password do not match our records.', ErrorCode::UNAUTHORIZED);
         }
 
@@ -52,7 +52,7 @@ class UserLoginService
 
     private function checkTooManyFailedAttempts()
     {
-        if (RateLimiter::tooManyAttempts($this->throttleKey(), 10)) {
+        if (RateLimiter::tooManyAttempts($this->throttleKey(), 50)) {
             throw new Exception('Too many login attempts.', ErrorCode::TOO_MANY_ATTEMPTS);
         }
     }
