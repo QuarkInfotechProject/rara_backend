@@ -8,6 +8,7 @@ use Modules\AccessGroup\App\Console\AssignSuperAdminRole;
 use Modules\AccessGroup\App\Console\LoadPermissionsFromFile;
 use Modules\Menu\App\Console\LoadDefaultMenu;
 use Modules\PageVault\App\Console\LoadDefaultPages;
+use Modules\AccessGroup\App\Console\SyncModelHasPermissions;
 
 class Kernel extends ConsoleKernel
 {
@@ -16,6 +17,7 @@ class Kernel extends ConsoleKernel
         LoadPermissionsFromFile::class,
         AssignSuperAdminRole::class,
         LoadDefaultPages::class,
+        SyncModelHasPermissions::class,
     ];
 
     /**
