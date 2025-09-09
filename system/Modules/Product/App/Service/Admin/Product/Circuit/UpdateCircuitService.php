@@ -209,6 +209,12 @@ class UpdateCircuitService
                         'time_window' => $itineraryData['time_window'],
                         'activity' => $itineraryData['activity'],
                         'order' => $itineraryData['order'],
+                        'duration' => $itineraryData['duration'],
+                        'max_altitude' => $itineraryData['max_altitude'],
+                        'location' => $itineraryData['location'],
+                        'activities' => $itineraryData['activities'],
+                        'accommodation' => $itineraryData['accommodation'],
+                        'meal' => $itineraryData['meal'],
                     ]);
                     $updatedItineraryIds[] = $itineraryItem->id;
                 }
@@ -219,6 +225,12 @@ class UpdateCircuitService
                     'time_window' => $itineraryData['time_window'],
                     'activity' => $itineraryData['activity'],
                     'order' => $itineraryData['order'],
+                    'duration' => $itineraryData['duration'],
+                    'max_altitude' => $itineraryData['max_altitude'],
+                    'location' => $itineraryData['location'],
+                    'activities' => $itineraryData['activities'],
+                    'accommodation' => $itineraryData['accommodation'],
+                    'meal' => $itineraryData['meal'],
                 ]);
                 $updatedItineraryIds[] = $itineraryItem->id;
             }
@@ -306,6 +318,7 @@ class UpdateCircuitService
                         'departure_from' => $departureData['departure_from'],
                         'departure_to' => $departureData['departure_to'],
                         'departure_per_price' => $departureData['departure_per_price'],
+                        'max_team_members' => $departureData['max_team_members'] ?? null,
                     ]);
                     $updatedDepartureIds[] = $departure->id;
                     continue; // ✅ prevents creating duplicate
@@ -317,6 +330,7 @@ class UpdateCircuitService
                 'departure_from' => $departureData['departure_from'],
                 'departure_to' => $departureData['departure_to'],
                 'departure_per_price' => $departureData['departure_per_price'],
+                'max_team_members' => $departureData['max_team_members'] ?? null,
             ]);
             $updatedDepartureIds[] = $departure->id;
         }
@@ -417,6 +431,7 @@ class UpdateCircuitService
             'files.featuredImages.*' => 'exists:files,id',
             'files.galleryImages' => 'required|array',
             'files.galleryImages.*' => 'exists:files,id',
+            'files.faqImages' => 'required|array',
             'files.faqImages.*' => 'exists:files,id',
             'files.locationCover' => 'required|exists:files,id',
             'files.howToGet' => 'nullable|exists:files,id',

@@ -6,14 +6,25 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Product\App\Models\Product;
+use Carbon\Carbon;
 
-class ListProductForHomepageService
+class ListProductOfDepartureService
 {
-    public function getPaginatedProducts($type)
+    public function getProductsByDeparture(?string $search = null)
     {
         try {
             $query = $this->getBaseQuery();
-            $query->where('type', $type);
+
+            $today = Carbon::today();
+
+            $query->whereHas('departures', function ($q) use ($today) {
+                $q->whereDate('departure_from', '>=', $today);
+            });
+
+            if (!empty($search)) {
+                $query->where('products.name', 'like', '%' . $search . '%');
+            }
+
             $products = $query->get();
 
             return $this->transformProducts($products);
@@ -22,34 +33,26 @@ class ListProductForHomepageService
             throw $exception;
         }
     }
-
     private function getBaseQuery(): Builder
     {
         $query = Product::query()
             ->select([
                 'products.id',
                 'products.name',
-                'products.tagline',
                 'products.slug',
                 'products.type',
-                'products.display_order',
-                'products.latitude',
-                'products.longitude',
-                'products.location',
-                'products.average_rating',
-                'products.total_rating'
+                'products.max_occupant',
             ])
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
-            ->where('products.display_homepage', true)
+//            ->where('products.display_homepage', false)
             ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
-            ->with(['tags' => function($query) {
-                $query->select('tags.id', 'tags.name', 'tags.description', 'display_order', 'zoom_level', 'tags.slug', 'tags.latitude', 'tags.longitude');
-            }])
-            ->with(['prices' => function($query) {
-                $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
-                    ->orderBy('number_of_people', 'asc');
-            }]);
+            ->with([
+                'tags:id,name,slug',
+                'prices:product_id,number_of_people,original_price_usd,discounted_price_usd',
+                'departures:id,product_id,departure_from,departure_to,departure_per_price,max_team_members',
+            ]);
+
 
         $user = Auth::guard('user')->user();
 
@@ -69,9 +72,10 @@ class ListProductForHomepageService
 
     private function transformProducts($products)
     {
-        return $products->map(function ($product) {
-            $product->featuredImage = $this->getMediaFiles($product, 'featuredImage');
-            $product->featuredImages = $this->getMediaFiles($product, 'featuredImages', true);
+        $today = \Carbon\Carbon::today();
+
+        return $products->map(function ($product) use ($today) {
+
             $product->tags = $product->tags->map(function ($tag) {
                 return [
                     'id' => $tag->id,
@@ -79,6 +83,7 @@ class ListProductForHomepageService
                     'slug' => $tag->slug,
                 ];
             })->values()->toArray();
+
             $product->prices = $product->prices->map(function ($price) {
                 return [
                     'number_of_people' => $price->number_of_people,
@@ -86,6 +91,18 @@ class ListProductForHomepageService
                     'discounted_price_usd' => $price->discounted_price_usd,
                 ];
             })->values()->toArray();
+            $product->departures = ($product->departures ?? collect())
+                ->filter(fn($dep) => \Carbon\Carbon::parse($dep->departure_from)->greaterThanOrEqualTo($today))
+                ->map(fn($dep) => [
+                    'id'    => $dep->id,
+                    'from'  => $dep->departure_from,
+                    'to'    => $dep->departure_to,
+                    'price' => $dep->departure_per_price,
+                    'max_team_members' => $dep->max_team_members,
+                ])
+                ->values()
+                ->toArray();
+
             return $product;
         });
     }
@@ -106,5 +123,4 @@ class ListProductForHomepageService
             return $baseImage ?? '';
         }
     }
-
 }

@@ -12,7 +12,13 @@ use Modules\Product\App\Http\Controllers\User\Product\ListExperienceTagsForHomep
 use Modules\Product\App\Http\Controllers\User\Product\ListReviewsAndRatingForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\SearchProductController;
 use Modules\Product\App\Http\Controllers\User\Product\ListAllProductSlugController;
-
+use Modules\Product\App\Http\Controllers\User\Product\ListProductOfDepartureController;
+use Modules\Product\App\Http\Controllers\User\Product\ListTrekForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListTourForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListActivitiesForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListSafariForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListHeroProductForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListPopularProductForHomepageController;
 /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -34,6 +40,8 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'product'],
     Route::post('detail/review/{slug}', GetProductDetailCommentController::class);
 
     Route::get('slug-list', ListAllProductSlugController::class);
+
+    Route::get('departure/lists', ListProductOfDepartureController::class);
 });
 
 Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' => 'product'], function () {
@@ -52,4 +60,17 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'homepage']
     Route::get('review', ListReviewsAndRatingForHomepageController::class);
 
     Route::post('search/{search}', SearchProductController::class);
+
+    Route::get('product-list/treks', ListTrekForHomepageController::class);
+
+    Route::get('product-list/tours', ListTourForHomepageController::class);
+
+    Route::get('product-list/activities', ListActivitiesForHomepageController::class);
+
+    Route::get('product-list/safaris', ListSafariForHomepageController::class);
+
+    Route::get('hero/list', ListHeroProductForHomepageController::class);
+
+    Route::get('popular/product/{type}', ListPopularProductForHomepageController::class);
+
 });

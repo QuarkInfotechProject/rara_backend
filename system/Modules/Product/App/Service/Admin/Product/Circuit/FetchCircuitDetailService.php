@@ -38,21 +38,19 @@ class FetchCircuitDetailService
                 ];
             })->toArray();
 
-            $data['overview'] = $product->overview->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'description' => $item->description,
-                    'duration' => $item->duration ?? null,
-                    'overview_location' => $item->overview_location ?? null,
-                    'trip_grade' => $item->trip_grade ?? null,
-                    'max_altitude' => $item->max_altitude ?? null,
-                    'best_time' => $item->best_time ?? null,
-                    'group_size' => $item->group_size ?? null,
-                    'activities' => $item->activities ?? null,
-                    'starts' => $item->starts ?? null,
-                ];
-            })->toArray();
+            $data['overview'] = $product->overview ? [
+                'id' => $product->overview->id,
+                'name' => $product->overview->name,
+                'description' => $product->overview->description,
+                'duration' => $product->overview->duration ?? null,
+                'overview_location' => $product->overview->overview_location ?? null,
+                'trip_grade' => $product->overview->trip_grade ?? null,
+                'max_altitude' => $product->overview->max_altitude ?? null,
+                'best_time' => $product->overview->best_time ?? null,
+                'group_size' => $product->overview->group_size ?? null,
+                'activities' => $product->overview->activities ?? null,
+                'starts' => $product->overview->starts ?? null,
+            ] : null;
 
             $data['departures'] = $product->departures->map(function ($departure) {
                 return [
@@ -60,6 +58,7 @@ class FetchCircuitDetailService
                     'departure_from' => $departure->departure_from,
                     'departure_to' => $departure->departure_to,
                     'departure_per_price' => $departure->departure_per_price,
+                    'max_team_members' => $departure->max_team_members,
                 ];
             })->toArray();
 
@@ -68,7 +67,7 @@ class FetchCircuitDetailService
                     'id' => $prices->id,
                     'number_of_people' => $prices->number_of_people,
                     'original_price_usd' => $prices->original_price_usd,
-                    'discounted_price_usd' =>  $prices->discounted_price_usd
+                    'discounted_price_usd' =>  $prices->discounted_price_usd,
                 ];
             })->toArray();
 
@@ -78,6 +77,12 @@ class FetchCircuitDetailService
                     'time_window' => $item->time_window,
                     'activity' => $item->activity,
                     'order' => $item->order,
+                    'duration' => $item->duration,
+                    'location' => $item->location,
+                    'max_altitude' => $item->max_altitude,
+                    'activities' => $item->activities,
+                    'accommodation' => $item->accommodation,
+                    'meal' => $item->meal,
                 ];
             })->toArray();
 
@@ -101,7 +106,7 @@ class FetchCircuitDetailService
                 'locationCover' => $this->getMediaFiles($product, 'locationCover'),
                 'howToGet' => $this->getMediaFiles($product, 'howToGet'),
                 'featuredImage' => $this->getMediaFiles($product, 'featuredImage'),
-                'faqImages' => $this->getMediaFiles($product, 'faqImages'),
+                'faqImages' => $this->getMediaFiles($product, 'faqImages',true),
             ];
 
             $entityMetadata = $product->meta()->first();
