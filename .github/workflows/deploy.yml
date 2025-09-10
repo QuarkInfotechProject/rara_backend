@@ -27,8 +27,8 @@ jobs:
             git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara_backend.git &&
             git pull origin main &&
             composer install --no-interaction --prefer-dist --optimize-autoloader &&
-            php artisan key:generate &&
-            php artisan migrate --force &&
-            php artisan optimize:clear &&
-            php artisan config:cache
+            /usr/local/lsws/lsphp82/bin/php artisan key:generate &&
+            /usr/local/lsws/lsphp82/bin/php artisan migrate --force &&
+            /usr/local/lsws/lsphp82/bin/php artisan optimize:clear &&
+            /usr/local/lsws/lsphp82/bin/php artisan config:cache
           "
