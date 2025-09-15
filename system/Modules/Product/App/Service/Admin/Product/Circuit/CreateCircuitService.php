@@ -38,13 +38,13 @@ class CreateCircuitService
                 'short_description' => $data['short_description'],
                 'description' => $data['description'],
                 'display_order' => $data['display_order']?? null,
-                'youtube_link' => $data['youtube_link'],
+                'youtube_link' => $data['youtube_link']?? null,
                 'latitude' => $data['latitude'],
                 'longitude' => $data['longitude'],
                 'location' => $data['location'],
                 'status' => $data['status'],
                 'how_to_get' => $data['how_to_get'],
-                'cornerstone' => $data['cornerstone'],
+                'cornerstone' => $data['cornerstone'] ?? '0',
                 'is_occupied' => $data['is_occupied'],
                 'impact' => $data['impact'] ?? '',
                 'display_homepage' => $data['display_homepage'] ?? '0',
@@ -59,7 +59,7 @@ class CreateCircuitService
             $this->attachExcluded($product, $data['excluded']);
             $this->attachWhatToBring($product, $data['what_to_bring']);
             $this->attachRelatedBlogs($product, $data['related_blogs']);
-            $this->attachTags($product, $data['tags']);
+            $this->attachTags($product, $data['tags'] ?? []);
             $this->createDossier($product, $data['dossiers'], $request);
             $this->createDepartures($product, $data['departures']);
 
@@ -110,8 +110,8 @@ class CreateCircuitService
     {
         $overviewRecord = [
             'product_id' => $product->id,
-            'name' => $this->getOverviewValue($overviewData, 'name'),
-            'description' => $this->getOverviewValue($overviewData, 'description'),
+            'name' => $this->getOverviewValue($overviewData, 'name')?? null,
+            'description' => $this->getOverviewValue($overviewData, 'description')?? null,
             'duration' => $this->getOverviewValue($overviewData, 'duration'),
             'overview_location' => $this->getOverviewValue($overviewData, 'overview_location'),
             'trip_grade' => $this->getOverviewValue($overviewData, 'trip_grade'),
@@ -175,7 +175,14 @@ class CreateCircuitService
 
     private function attachWhatToBring(Product $product, array $whatToBringIds)
     {
-        $product->whatToBring()->attach($whatToBringIds);
+        if (empty($whatToBringIds)) {
+            return;
+        }
+        $cleanIds = array_filter($whatToBringIds, fn($id) => !is_null($id) && $id !== '');
+
+        if (!empty($cleanIds)) {
+            $product->whatToBring()->attach($cleanIds);
+        }
     }
 
     private function attachRelatedCircuits(Product $product, array $circuitIds)
@@ -188,9 +195,17 @@ class CreateCircuitService
         $product->relatedBlogs()->attach($blogIds);
     }
 
-    private function attachTags(Product $product, array $tagIds)
+    private function attachTags(Product $product, ?array $tagIds)
     {
-        $product->tags()->attach($tagIds);
+        if (empty($tagIds)) {
+            return;
+        }
+
+        $cleanIds = array_filter($tagIds, fn($id) => !is_null($id) && $id !== '');
+
+        if (!empty($cleanIds)) {
+            $product->tags()->attach($cleanIds);
+        }
     }
     private function createDepartures(Product $product, array $departures)
     {
@@ -226,7 +241,7 @@ class CreateCircuitService
 
         Dossier::create([
             'product_id' => $product->id,
-            'content' => $dossiers['content'],
+            'content' => $dossiers['content']?? null,
             'pdf_path' => $pdfPath,
         ]);
 
@@ -285,13 +300,13 @@ class CreateCircuitService
             'itinerary.*.activity' => 'required|string',
             'itinerary.*.order' => 'required|integer',
 
-            'included' => 'required|array',
+            'included' => 'nullable|array',
             'included.*' => 'exists:amenities,id',
 
-            'excluded' => 'required|array',
+            'excluded' => 'nullable|array',
             'excluded.*' => 'exists:amenities,id',
 
-            'what_to_bring' => 'required|array',
+            'what_to_bring' => 'nullable|array',
 
             'related_circuit' => 'nullable|array',
             'related_circuit.*' => 'exists:products,id',
@@ -299,8 +314,8 @@ class CreateCircuitService
             'related_blogs' => 'required|array',
             'related_blogs.*' => 'exists:blogs,id',
 
-            'tags' => 'required|array',
-            'tags.*' => 'exists:tags,id',
+            'tags' => 'nullable|array',
+//            'tags.*' => 'exists:tags,id',
 
             'meta' => 'required|array',
             'meta.metaTitle' => 'required|string',
