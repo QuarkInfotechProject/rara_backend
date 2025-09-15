@@ -104,7 +104,7 @@ class FetchCircuitDetailService
                 'featuredImages' => $this->getMediaFiles($product, 'featuredImages', true),
                 'galleryImages' => $this->getMediaFiles($product, 'galleryImages', true),
                 'locationCover' => $this->getMediaFiles($product, 'locationCover'),
-                'howToGet' => $this->getMediaFiles($product, 'howToGet'),
+                'altitudeChart' => $this->getMediaFiles($product, 'altitudeChart'),
                 'featuredImage' => $this->getMediaFiles($product, 'featuredImage'),
                 'faqImages' => $this->getMediaFiles($product, 'faqImages',true),
             ];
