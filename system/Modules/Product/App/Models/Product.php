@@ -77,10 +77,20 @@ class Product extends Model
             ->where('amenities.category', 'excluded');
     }  // apply product name filter only if provided
 
+//    public function whatToBring(): BelongsToMany
+//    {
+//        return $this->belongsToMany(Amenity::class, 'product_what_to_bring')
+//            ->where('amenities.category', 'whatToBring');
+//    }
+
     public function whatToBring(): BelongsToMany
     {
-        return $this->belongsToMany(Amenity::class, 'product_what_to_bring')
-            ->where('amenities.category', 'whatToBring');
+        return $this->belongsToMany(
+            Amenity::class,
+            'product_what_to_bring',
+            'product_id',
+            'amenity_id'
+        );
     }
 
     public function homestayHosts(): HasMany
