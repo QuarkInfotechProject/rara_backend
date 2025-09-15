@@ -7,43 +7,33 @@ use Modules\Product\App\Models\Product;
 
 class PaginateCircuitService
 {
-
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = Product::query()
-//            ->where('type', 'trek')
+             ->where('type', 'trek')
             ->select([
                 'id',
                 'name',
                 'short_code',
                 'display_order',
                 'status',
+                'type',
                 'display_homepage',
                 'cornerstone'
             ])
-            ->with(['tags' => function ($query) {
-                $query->select('tags.id', 'tags.name');
-            }]);
+            ->orderBy('id', 'desc');
 
         $this->applyFilters($query, $filters);
 
-        $paginator = $query->paginate($perPage);
-
-        $paginator->getCollection()->transform(function ($product) {
-            $product->tag_names = $product->tags->pluck('name');
-            unset($product->tags);
-            return $product;
-        });
-
-        return $paginator;
+        return $query->paginate($perPage);
     }
 
     private function applyFilters($query, array $filters): void
     {
-        if (isset($filters['name'])) {
+        if (!empty($filters['name'])) {
             $query->where('name', 'like', '%' . $filters['name'] . '%');
         }
-        if (isset($filters['status'])) {
+        if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
     }

@@ -43,7 +43,7 @@ class UpdateCircuitService
                 'location' => $data['location'],
                 'status' => $data['status'],
                 'how_to_get' => $data['how_to_get'],
-                'cornerstone' => $data['cornerstone'],
+                'cornerstone' => $data['cornerstone'] ?? '0',
                 'is_occupied' => $data['is_occupied'],
                 'impact' => $data['impact'] ?? '',
                 'display_homepage' => $data['display_homepage'] ?? '0',
@@ -268,19 +268,37 @@ class UpdateCircuitService
         }
     }
 
-    private function updateIncluded(Product $product, array $includedIds)
+    private function updateIncluded(Product $product, ?array $includedIds)
     {
-        $product->included()->sync($includedIds);
+        if (empty($includedIds)) {
+            $product->included()->detach();
+            return;
+        }
+
+        $cleanIds = array_filter($includedIds, fn($id) => !is_null($id) && $id !== '');
+        $product->included()->sync($cleanIds);
     }
 
-    private function updateExcluded(Product $product, array $excludedIds)
+    private function updateExcluded(Product $product, ?array $excludedIds)
     {
-        $product->excluded()->sync($excludedIds);
+        if (empty($excludedIds)) {
+            $product->excluded()->detach();
+            return;
+        }
+
+        $cleanIds = array_filter($excludedIds, fn($id) => !is_null($id) && $id !== '');
+        $product->excluded()->sync($cleanIds);
     }
 
-    private function updateWhatToBring(Product $product, array $whatToBringIds)
+    private function updateWhatToBring(Product $product, ?array $whatToBringIds)
     {
-        $product->whatToBring()->sync($whatToBringIds);
+        if (empty($whatToBringIds)) {
+            $product->whatToBring()->detach();
+            return;
+        }
+
+        $cleanIds = array_filter($whatToBringIds, fn($id) => !is_null($id) && $id !== '');
+        $product->whatToBring()->sync($cleanIds);
     }
 
     private function updateRelatedCircuits(Product $product, array $circuits)
@@ -298,12 +316,16 @@ class UpdateCircuitService
         $product->relatedBlogs()->sync($blogIds);
     }
 
-    private function updateTags(Product $product, array $tagIds)
+    private function updateTags(Product $product, ?array $tagIds)
     {
-        $product->tags()->sync($tagIds);
-    }
+        if (empty($tagIds)) {
+            $product->tags()->detach();
+            return;
+        }
 
-    // FIXED: Removed extra $request parameter
+        $cleanIds = array_filter($tagIds, fn($id) => !is_null($id) && $id !== '');
+        $product->tags()->sync($cleanIds);
+    }
 
     private function updateDepartures(Product $product, array $departures)
     {
@@ -371,7 +393,7 @@ class UpdateCircuitService
             'location' => 'required|string',
             'status' => 'required|string|in:draft,published,archived',
             'how_to_get' => 'nullable|string',
-            'cornerstone' => 'boolean',
+            'cornerstone' => 'nullable|in:0,1',
             'is_occupied' => 'boolean',
             'impact' => 'nullable|string',
 
@@ -402,23 +424,23 @@ class UpdateCircuitService
             'itinerary.*.activity' => 'required|string',
             'itinerary.*.order' => 'required|integer',
 
-            'included' => 'required|array',
-            'included.*' => 'exists:amenities,id',
+            'included' => 'nullable|array',
+            'included.*' => 'nullable|exists:amenities,id',
 
-            'excluded' => 'required|array',
-            'excluded.*' => 'exists:amenities,id',
+            'excluded' => 'nullable|array',
+            'excluded.*' => 'nullable|exists:amenities,id',
 
-            'what_to_bring' => 'required|array',
-            'what_to_bring.*' => 'exists:amenities,id',
+            'what_to_bring' => 'nullable|array',
+            'what_to_bring.*' => 'nullable|exists:amenities,id',
 
             'related_circuit' => 'nullable|array',
-            'related_circuit.*' => 'exists:products,id',
+            'related_circuit.*' => 'nullable|exists:products,id',
 
             'related_blogs' => 'required|array',
             'related_blogs.*' => 'exists:blogs,id',
 
-            'tags' => 'required|array',
-            'tags.*' => 'exists:tags,id',
+            'tags' => 'nullable|array',
+//            'tags.*' => 'exists:tags,id',
 
             'meta' => 'required|array',
             'meta.metaTitle' => 'required|string|max:60',
