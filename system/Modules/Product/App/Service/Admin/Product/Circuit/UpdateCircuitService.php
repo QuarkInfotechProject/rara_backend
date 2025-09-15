@@ -456,7 +456,7 @@ class UpdateCircuitService
             'files.faqImages' => 'required|array',
             'files.faqImages.*' => 'exists:files,id',
             'files.locationCover' => 'required|exists:files,id',
-            'files.howToGet' => 'nullable|exists:files,id',
+            'files.altitudeChart' => 'nullable|exists:files,id',
 
             'dossiers' => 'nullable|array',
             'dossiers.content' => 'nullable|string',
