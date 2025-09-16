@@ -15,7 +15,7 @@ class CreateCircuitController extends AdminBaseController
     public function __invoke(Request $request)
     {
         $this->createCircuitService->createCircuit($request->all(), $request->getClientIp(), $request);
-        return $this->successResponse('Circuit has been created successfully.');
+        return $this->successResponse('Trek has been created successfully.');
     }
 
 
