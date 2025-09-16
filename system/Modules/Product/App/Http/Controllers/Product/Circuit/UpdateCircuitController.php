@@ -18,7 +18,7 @@ class UpdateCircuitController extends AdminBaseController
     {
         $this->updateCircuitService->updateCircuit($request->request->all(), $request->getClientIp(), $request);
 
-        return $this->successResponse('Circuit has been updated successfully.');
+        return $this->successResponse('Trek has been updated successfully.');
     }
 
 }

@@ -17,7 +17,7 @@ class PaginateCircuitController extends AdminBaseController
     {
         $data = $this->paginateCircuitService->paginate($request->get('filters'));
 
-        return $this->successResponse('Paginated Circuit has been fetched successfully.', $data);
+        return $this->successResponse('Paginated Trek has been fetched successfully.', $data);
     }
 
 }

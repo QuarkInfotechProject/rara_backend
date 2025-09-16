@@ -38,6 +38,15 @@ use Modules\Product\App\Http\Controllers\Product\Package\UpdatePackageController
 use Modules\Product\App\Http\Controllers\Product\Package\PaginatePackageController;
 use Modules\Product\App\Http\Controllers\Product\Package\GetPackageDetailController;
 use Modules\Product\App\Http\Controllers\Dashboard\GetProductRatingStatsController;
+use Modules\Product\App\Http\Controllers\Product\Tour\CreateTourController;
+use Modules\Product\App\Http\Controllers\Product\Tour\FetchTourDetailController;
+use Modules\Product\App\Http\Controllers\Product\Tour\PaginateTourController;
+use Modules\Product\App\Http\Controllers\Product\Tour\UpdateTourController;
+use Modules\Product\App\Http\Controllers\Product\Activities\CreateActivitiesController;
+use Modules\Product\App\Http\Controllers\Product\Activities\FetchActivitiesDetailController;
+use Modules\Product\App\Http\Controllers\Product\Activities\PaginateActivitiesController;
+use Modules\Product\App\Http\Controllers\Product\Activities\UpdateActivitiesController;
+
 
 /*
     |--------------------------------------------------------------------------
@@ -150,17 +159,45 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' 
 
     //circuit
 
-    Route::post('circuit/create', CreateCircuitController::class)
+    Route::post('trek/create', CreateCircuitController::class)
      ->middleware('can:view_product');
 
-    Route::get('circuit/detail/{id}', FetchCircuitDetailController::class)
+    Route::get('trek/detail/{id}', FetchCircuitDetailController::class)
     ->middleware('can:view_product');
 
-    Route::post('circuit/paginate', PaginateCircuitController::class)
+    Route::post('trek/paginate', PaginateCircuitController::class)
      ->middleware('can:view_product');
 
-    Route::post('circuit/update', UpdateCircuitController::class)
+    Route::post('trek/update', UpdateCircuitController::class)
      ->middleware('can:view_product');
+
+    //Tour
+
+    Route::post('tour/create', CreateTourController::class)
+        ->middleware('can:view_product');
+
+    Route::get('tour/detail/{id}', FetchTourDetailController::class)
+        ->middleware('can:view_product');
+
+    Route::post('tour/paginate', PaginateTourController::class)
+        ->middleware('can:view_product');
+
+    Route::post('tour/update', UpdateTourController::class)
+        ->middleware('can:view_product');
+
+    //Activities
+
+    Route::post('activities/create', CreateActivitiesController::class)
+        ->middleware('can:view_product');
+
+    Route::get('activities/detail/{id}', FetchActivitiesDetailController::class)
+        ->middleware('can:view_product');
+
+    Route::post('activities/paginate', PaginateActivitiesController::class)
+        ->middleware('can:view_product');
+
+    Route::post('activities/update', UpdateActivitiesController::class)
+        ->middleware('can:view_product');
 
     //package
 

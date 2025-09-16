@@ -100,11 +100,23 @@ class ActivityTypeConstant
     public const EXPERIENCE_DELETED = 'Experience Deleted';
     public const EXPERIENCE_UPDATED = 'Experience Updated';
 
-    public const CIRCUIT_ADDED = 'Circuit Added';
-    public const CIRCUIT_TRASHED = 'Circuit Trashed';
-    public const CIRCUIT_RESTORE = 'Circuit Restore';
-    public const CIRCUIT_DELETED = 'Circuit Deleted';
-    public const CIRCUIT_UPDATED = 'Circuit Updated';
+    public const TREK_ADDED = 'Trek Added';
+    public const TREK_TRASHED = 'Trek Trashed';
+    public const TREK_RESTORE = 'Trek Restore';
+    public const TREK_DELETED = 'Trek Deleted';
+    public const TREK_UPDATED = 'Trek Updated';
+
+    public const TOUR_ADDED = 'Tour Added';
+    public const TOUR_TRASHED = 'Tour Trashed';
+    public const TOUR_RESTORE = 'Tour Restore';
+    public const TOUR_DELETED = 'Tour Deleted';
+    public const TOUR_UPDATED = 'Tour Updated';
+
+    public const ACTIVITIES_ADDED = 'Activities Added';
+    public const ACTIVITIES_TRASHED = 'Activities Trashed';
+    public const ACTIVITIES_RESTORE = 'Activities Restore';
+    public const ACTIVITIES_DELETED = 'Activities Deleted';
+    public const ACTIVITIES_UPDATED = 'Activities Updated';
 
     public const PACKAGE_ADDED = 'Package Added';
     public const PACKAGE_TRASHED = 'Package Trashed';

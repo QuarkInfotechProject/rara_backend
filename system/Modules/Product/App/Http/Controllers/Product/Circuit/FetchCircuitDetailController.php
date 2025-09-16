@@ -15,7 +15,7 @@ class FetchCircuitDetailController extends AdminBaseController
     public function __invoke($id)
     {
         $detail = $this->fetchCircuitDetailService->getCircuitDetails($id);
-        return $this->successResponse('Detail for circuit has been fetched successfully.', $detail);
+        return $this->successResponse('Detail for trek has been fetched successfully.', $detail);
     }
 
 
