@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Product\App\Service\Admin\Product\Circuit;
+namespace Modules\Product\App\Service\Admin\Product\Activities;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,9 +12,9 @@ use Modules\Product\App\Models\Product;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
 
-class UpdateCircuitService
+class UpdateActivitiesService
 {
-    public function updateCircuit($data, $ipAddress, $request)
+    public function updateActivities($data, $ipAddress, $request)
     {
         $validator = $this->validateUpdateCircuitData($data);
 
@@ -70,9 +70,9 @@ class UpdateCircuitService
         }
 
         Event::dispatch(new AdminUserActivityLogEvent(
-            "{$product->name} trek has been updated by: " . Auth::user()->name,
+            "{$product->name} activities has been updated by: " . Auth::user()->name,
             Auth::id(),
-            ActivityTypeConstant::TREK_UPDATED,
+            ActivityTypeConstant::ACTIVITIES_UPDATED,
             $ipAddress
         ));
 

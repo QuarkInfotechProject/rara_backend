@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Product\App\Service\Admin\Product\Circuit;
+namespace Modules\Product\App\Service\Admin\Product\Activities;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,9 +15,9 @@ use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
 use Modules\Product\App\Models\Dossier;
 
-class CreateCircuitService
+class CreateActivitiesService
 {
-    public function createCircuit($data, $ipAddress, $request)
+    public function createActivities($data, $ipAddress, $request)
     {
         $validator = $this->validateCircuitData($data);
 
@@ -74,9 +74,9 @@ class CreateCircuitService
         }
 
         Event::dispatch(new AdminUserActivityLogEvent(
-                "{$product->name} trek has been added by: " . Auth::user()->name,
+                "{$product->name} activities has been added by: " . Auth::user()->name,
                 Auth::id(),
-                ActivityTypeConstant::TREK_ADDED,
+                ActivityTypeConstant::ACTIVITIES_ADDED,
                 $ipAddress)
         );
 
