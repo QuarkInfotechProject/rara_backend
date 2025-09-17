@@ -27,7 +27,22 @@ class ListProductOfDepartureService
 
             $products = $query->get();
 
-            return $this->transformProducts($products);
+            $transformed = $this->transformProducts($products);
+
+            $grouped = collect($transformed)
+                ->map(function ($product) {
+                    // sort departures by 'from' ASC inside each product
+                    $product->departures = collect($product->departures)
+                        ->sortBy(fn($dep) => \Carbon\Carbon::parse($dep['from']))
+                        ->values()
+                        ->toArray();
+                    return $product;
+                })
+                ->sortBy('id') // sort products ASC by id
+                ->groupBy('type')
+                ->map(fn($items) => $items->sortBy('id')->values());
+
+            return $grouped;
 
         } catch (\Exception $exception) {
             throw $exception;
