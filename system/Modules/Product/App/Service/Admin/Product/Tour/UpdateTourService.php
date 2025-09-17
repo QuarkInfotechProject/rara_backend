@@ -446,7 +446,7 @@ class UpdateTourService
             'meta.metaTitle' => 'required|string|max:60',
             'meta.keywords' => 'required|array',
             'meta.keywords.*' => 'string',
-            'meta.metaDescription' => 'required|string|max:160',
+            'meta.metaDescription' => 'required|string|max:200',
 
             'files' => 'required|array',
             'files.featuredImages' => 'required|array',
