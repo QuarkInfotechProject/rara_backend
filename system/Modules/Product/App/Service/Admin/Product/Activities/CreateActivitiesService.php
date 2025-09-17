@@ -320,7 +320,7 @@ class CreateActivitiesService
             'meta' => 'required|array',
             'meta.metaTitle' => 'required|string',
             'meta.keywords' => 'required|array',
-            'meta.metaDescription' => 'required|string',
+            'meta.metaDescription' => 'required|string|max:200',
 
             'files' => 'required|array',
             'files.featuredImages' => 'nullable|array',
