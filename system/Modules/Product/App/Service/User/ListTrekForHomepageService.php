@@ -15,7 +15,7 @@ class ListTrekForHomepageService
             $query = $this->getBaseQuery();
             $query->where('type', 'trek');
 
-            $products = $query->limit(7)->get();
+            $products = $query->get();
 
             return $this->transformProducts($products);
 
@@ -36,34 +36,91 @@ class ListTrekForHomepageService
             ])
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
-//            ->where('products.display_homepage', true)
-            ->orderByRaw('CAST(products.display_order AS SIGNED) ASC');
+            ->where('products.display_homepage', true)
+            ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
+            ->with([
+                'tags' => function ($query) {
+                    $query->select('tags.id', 'tags.name', 'tags.slug')
+                        ->withPivot('product_id', 'tag_id');
+                },
+                'prices' => function ($query) {
+                    $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
+                        ->orderBy('number_of_people', 'asc');
+                },
+                'overview:id,product_id,duration,trip_grade,max_altitude,group_size,best_time,starts'
+            ]);
+
+        // wishlist join if user logged in
+        $user = Auth::guard('user')->user();
+        if ($user) {
+            $userId = $user->id;
+            $query->leftJoin('saved_products', function ($join) use ($userId) {
+                $join->on('products.id', '=', 'saved_products.product_id')
+                    ->where('saved_products.user_id', '=', $userId);
+            })
+                ->addSelect(DB::raw('CASE WHEN saved_products.id IS NOT NULL THEN TRUE ELSE FALSE END AS wishlist'));
+        } else {
+            $query->addSelect(DB::raw('FALSE AS wishlist'));
+        }
+
+        return $query;
     }
 
     private function transformProducts($products)
     {
         return $products->map(function ($product) {
             $product->featuredImage = $this->getMediaFiles($product, 'featuredImage');
-            $product->slug = '/treks/' . $product->slug; // 👈 prepend /treks/
-            return (object) [
-                'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
-                'type' => $product->type,
-                'short_description' => $product->short_description,
-                'featuredImage' => $product->featuredImage,
-            ];
+            $product->featuredImages = $this->getMediaFiles($product, 'featuredImages', true);
+
+            $product->tags = $product->tags->map(function ($tag) {
+                return [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                    'pivot' => $tag->pivot ? $tag->pivot->toArray() : null,
+                ];
+            })->values()->toArray();
+
+            $product->prices = $product->prices->map(function ($price) {
+                return [
+                    'product_id' => $price->product_id,
+                    'number_of_people' => $price->number_of_people,
+                    'original_price_usd' => $price->original_price_usd,
+                    'discounted_price_usd' => $price->discounted_price_usd,
+                ];
+            })->values()->toArray();
+
+            $product->overview = $product->overview ? [
+                'duration' => $product->overview->duration,
+                'trip_grade' => $product->overview->trip_grade,
+                'max_altitude' => $product->overview->max_altitude,
+                'group_size' => $product->overview->group_size,
+                'best_time' => $product->overview->best_time,
+                'starts' => $product->overview->starts,
+            ] : null;
+
+            $product->slug = '/treks/' . $product->slug;
+
+            return $product;
         });
     }
-
-    private function getMediaFiles($product, $type, $multiple = false)
+    private function getMediaFiles($post, $type, $multiple = false)
     {
-        $baseImageFiles = $product->filterFiles($type)->get();
+        $baseImageFiles = $post->filterFiles($type)->get();
 
         if ($multiple) {
-            return $baseImageFiles->map(fn($file) => $file->path . '/' . $file->temp_filename)->toArray();
+            return $baseImageFiles->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'url' => $file->path . '/' . $file->temp_filename,
+                ];
+            })->toArray();
+        } else {
+            $file = $baseImageFiles->first();
+            return $file ? [
+                'id' => $file->id,
+                'url' => $file->path . '/' . $file->temp_filename,
+            ] : null;
         }
-
-        return $baseImageFiles->map(fn($file) => $file->path . '/' . $file->temp_filename)->first() ?? '';
     }
 }

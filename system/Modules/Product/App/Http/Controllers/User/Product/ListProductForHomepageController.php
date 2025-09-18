@@ -13,9 +13,9 @@ class ListProductForHomepageController extends UserBaseController
     }
 
 
-    public function __invoke($type)
+    public function __invoke()
     {
-        $data = $this->listProductForHomepageService->getPaginatedProducts($type);
+        $data = $this->listProductForHomepageService->getPaginatedProducts();
         return $this->successResponse('Product List for homepage has been fetched successfully.', $data);
     }
 
