@@ -19,6 +19,7 @@ class CreateTourService
 {
     public function createTour($data, $ipAddress, $request)
     {
+//        dd($data);
         $validator = $this->validateCircuitData($data);
 
         if ($validator->fails()) {
@@ -47,7 +48,7 @@ class CreateTourService
                 'cornerstone' => $data['cornerstone'] ?? '0',
                 'is_occupied' => $data['is_occupied'],
                 'impact' => $data['impact'] ?? '',
-                'display_homepage' => $data['display_homepage'] ?? '0',
+                'display_homepage' => filter_var($data['display_homepage'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                 'manager_id' => $data['manager_id']?? null,
             ]);
 

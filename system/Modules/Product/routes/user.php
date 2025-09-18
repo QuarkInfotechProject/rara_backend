@@ -53,7 +53,8 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' =
 
 Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'homepage'], function () {
 
-    Route::get('product/{type}', ListProductForHomepageController::class);
+//    Route::get('product/{type}', ListProductForHomepageController::class);
+    Route::get('product/list', ListProductForHomepageController::class);
 
     Route::get('experience-tag', ListExperienceTagsForHomepageController::class);
 

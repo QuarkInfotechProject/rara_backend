@@ -9,14 +9,15 @@ use Modules\Product\App\Models\Product;
 
 class ListProductForHomepageService
 {
-    public function getPaginatedProducts($type)
+    public function getPaginatedProducts()
     {
         try {
             $query = $this->getBaseQuery();
-            $query->where('type', $type);
             $products = $query->get();
 
-            return $this->transformProducts($products);
+            return $products->groupBy('type')->map(function ($groupedProducts) {
+                return $this->transformProducts($groupedProducts);
+            });
 
         } catch (\Exception $exception) {
             throw $exception;
@@ -42,7 +43,7 @@ class ListProductForHomepageService
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
             ->where('products.display_homepage', true)
-            ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
+            ->orderByRaw('CAST(products.display_order AS SIGNED) DESC')
             ->with(['tags' => function($query) {
                 $query->select('tags.id', 'tags.name', 'tags.description', 'display_order', 'zoom_level', 'tags.slug', 'tags.latitude', 'tags.longitude');
             }])
