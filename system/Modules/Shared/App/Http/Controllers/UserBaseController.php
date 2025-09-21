@@ -8,17 +8,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserBaseController extends Controller
 {
-    public function successResponse($message = null, $data = array(), $statusCode = 200, $responseCode= 0, $headers = array(), $format= 'json')
+    public function successResponse($message = null, $data = array(), $statusCode = 200, $responseCode= 0, $headers = array(), $format= 'json'): JsonResponse|Response
     {
         return $this->response($message, $data, $statusCode, $responseCode, $headers, $format);
     }
 
-    public function errorResponse($message = null, $data = array(), $statusCode = 500, $responseCode = -1, $headers = array(), $format = 'json')
+    public function errorResponse($message = null, $data = array(), $statusCode = 500, $responseCode = -1, $headers = array(), $format = 'json'): JsonResponse|Response
     {
         return $this->response($message, $data, $statusCode, $responseCode, $headers, $format);
     }
 
-    public function response($message = null, $res = array(), $statusCode = 200, $responseCode = 0, $headers = array(), $format = 'json')
+    public function response($message = null, $res = array(), $statusCode = 200, $responseCode = 0, $headers = array(), $format = 'json'): JsonResponse|Response
     {
         $data['code'] = $responseCode;
         if ($message) {
