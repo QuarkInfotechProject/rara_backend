@@ -31,7 +31,8 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' =
 
 Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'profile'], function () {
 
-    Route::post('add-review', AddReviewsAndRatingController::class);
+//    Route::post('add-review', AddReviewsAndRatingController::class);
     Route::get('get-booking-history', GetBookingHistoryWithReviewsAndRatingController::class);
 
 });
+Route::post('profile/add-review', AddReviewsAndRatingController::class);
