@@ -26,7 +26,7 @@ class AddBookingService
 
             $inquiry = Booking::create([
                 'product_id' => $data['product_id'],
-                'user_id' => auth()->user()->id,
+//                'user_id' => auth()->user()->id,
                 'product_name' => $product->name,
                 'product_type' => $product->type,
                 'agent_id' => null,
