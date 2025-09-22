@@ -18,7 +18,7 @@ class AddBookingController extends AdminBaseController
     {
         $this->addBookingService->createInquiry($request->request->all(), $request->getClientIp());
 
-        return $this->successResponse('Booking has been added successfully.');
+        return $this->successResponse('Inquiry has been added successfully.');
     }
 
 
