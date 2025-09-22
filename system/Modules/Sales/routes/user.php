@@ -18,9 +18,10 @@ use Modules\Sales\App\Http\Controllers\User\Review\GetBookingHistoryWithReviewsA
 
 Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' => 'booking'], function () {
 
-    Route::post('new', AddBookingController::class);
+//    Route::post('new', AddBookingController::class);
 
 });
+Route::post('booking/new', AddBookingController::class);
 
 //Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' => 'profile'], function () {
 //
