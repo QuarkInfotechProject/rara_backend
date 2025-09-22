@@ -22,9 +22,9 @@ class PaginateReviewsService
             $query->where('approved', $filters['approved']);
         }
 
-        $query->with(['product:id,name', 'user:id,full_name']);
+        $query->with(['product:id,name', 'user:id,full_name,email']);
 
-        $query->select('id', 'product_id', 'user_id', 'overall_rating', 'public_review', 'approved');
+        $query->select('id', 'product_id', 'user_id', 'email', 'overall_rating', 'public_review', 'approved');
 
         return $query->paginate($perPage);
     }
