@@ -21,7 +21,8 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' =
 //    Route::post('new', AddBookingController::class);
 
 });
-Route::post('booking/new', AddBookingController::class);
+Route::post('inquiry/new', AddBookingController::class);
+
 
 //Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' => 'profile'], function () {
 //
