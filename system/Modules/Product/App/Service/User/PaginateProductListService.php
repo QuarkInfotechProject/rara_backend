@@ -49,6 +49,9 @@ class PaginateProductListService
                 'prices' => function ($query) {
                     $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
                         ->orderBy('number_of_people', 'asc');
+                },
+                'overview' => function ($query) {
+                    $query->select('product_id', 'duration', 'trip_grade', 'max_altitude', 'group_size', 'best_time', 'starts');
                 }
             ]);
         $user = Auth::guard('user')->user();
@@ -70,7 +73,7 @@ class PaginateProductListService
     private function applyFilters(Builder $query, array $filters): void
     {
         if (isset($filters['type'])) {
-            $query->where('type', $filters['type']);
+            $query->where('products.type', $filters['type']);
         }
 
         if (isset($filters['tags']) && is_array($filters['tags']) && !empty($filters['tags'])) {
@@ -88,13 +91,13 @@ class PaginateProductListService
         }
 
         if (isset($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
+            $query->where('products.name', 'like', '%' . $filters['search'] . '%');
         }
 
-        if (isset($filters['bounds'])) {
-            $query->whereBetween('latitude', [$filters['bounds']['south'], $filters['bounds']['north']])
-                ->whereBetween('longitude', [$filters['bounds']['west'], $filters['bounds']['east']]);
-        }
+//        if (isset($filters['bounds'])) {
+//            $query->whereBetween('products.latitude', [$filters['bounds']['south'], $filters['bounds']['north']])
+//                ->whereBetween('products.longitude', [$filters['bounds']['west'], $filters['bounds']['east']]);
+//        }
 
         if (isset($filters['price'])) {
             if (isset($filters['price']['min'])) {
