@@ -12,15 +12,16 @@ class GetProductDetailCommentService
         try {
             $product = Product::where('slug', $slug)->firstOrFail();
 
-            $reviews = ProductRatingReview::with(['user:id,full_name,country'])
+            $reviews = ProductRatingReview::with(['user:id,full_name,country,email'])
                 ->where('product_id', $product->id)
+                ->where('approved', 1)
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
 
-            // If the requested page is greater than the last page, adjust to the last page
             if ($reviews->currentPage() > $reviews->lastPage()) {
-                $reviews = ProductRatingReview::with(['user:id,full_name,country'])
+                $reviews = ProductRatingReview::with(['user:id,full_name,country,email'])
                     ->where('product_id', $product->id)
+                    ->where('approved', 1)
                     ->orderBy('created_at', 'desc')
                     ->paginate($perPage, ['*'], 'page', $reviews->lastPage());
             }
@@ -28,10 +29,16 @@ class GetProductDetailCommentService
             $reviewsData = $reviews->getCollection()->map(function ($review) {
                 return [
                     'id' => $review->id,
-                    'user' => [
+                    'user' => $review->user ? [
                         'id' => $review->user->id,
                         'name' => $review->user->full_name,
                         'country' => $review->user->country,
+                        'email' => $review->user->email,
+                    ] : [
+                        'id' => null,
+                        'name' => 'Guest',
+                        'country' => null,
+                        'email' => $review->email,
                     ],
                     'cleanliness' => $review->cleanliness,
                     'hospitality' => $review->hospitality,
@@ -40,6 +47,7 @@ class GetProductDetailCommentService
                     'overall_rating' => $review->overall_rating,
                     'public_review' => $review->public_review,
                     'reply_to_public_review' => $review->reply_to_public_review,
+                    'approved' => (bool) $review->approved,
                     'reviewed_at' => $review->created_at->toDateTimeString(),
                 ];
             });
@@ -47,16 +55,20 @@ class GetProductDetailCommentService
             $reviewStats = $this->getReviewStatistics($product->id);
 
             return [
-                'product_id' => $product->id,
-                'product_name' => $product->name,
-                'review_stats' => $reviewStats,
-                'reviews' => [
-                    'data' => $reviewsData,
-                    'current_page' => $reviews->currentPage(),
-                    'per_page' => $reviews->perPage(),
-                    'total' => $reviews->total(),
-                    'last_page' => $reviews->lastPage(),
-                ],
+                'code' => 0,
+                'message' => 'Review has been fetched successfully.',
+                'data' => [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'review_stats' => $reviewStats,
+                    'reviews' => [
+                        'data' => $reviewsData,
+                        'current_page' => $reviews->currentPage(),
+                        'per_page' => $reviews->perPage(),
+                        'total' => $reviews->total(),
+                        'last_page' => $reviews->lastPage(),
+                    ],
+                ]
             ];
         } catch (\Exception $exception) {
             return [
@@ -69,7 +81,10 @@ class GetProductDetailCommentService
 
     private function getReviewStatistics($productId)
     {
-        $reviews = ProductRatingReview::where('product_id', $productId)->get();
+        $reviews = ProductRatingReview::where('product_id', $productId)
+            ->where('approved', 1)
+            ->get();
+
         $totalReviews = $reviews->count();
         $averageRating = $reviews->avg('overall_rating');
 
