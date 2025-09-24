@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->string('status')->default('new-inquiry');
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('product_id')->nullable();
             $table->unsignedBigInteger('agent_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('product_name');
-            $table->string('product_type');
+            $table->string('product_name')->nullable();
+            $table->string('product_type')->nullable();
             $table->date('from_date')->nullable();
             $table->date('to_date')->nullable();
-            $table->integer('adult');
+            $table->integer('adult')->default(0);
             $table->integer('children')->default(0);
             $table->integer('infant')->default(0);
             $table->string('type')->default('inquiry');
@@ -31,6 +31,11 @@ return new class extends Migration
             $table->string('country');
             $table->text('note')->nullable();
             $table->integer('has_responded')->default(0);
+            $table->text('group_size')->nullable();
+            $table->date('preferred_date')->nullable();
+            $table->integer('duration')->nullable();
+            $table->string('budget_range')->nullable();
+            $table->text('special_message')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('agent_id')->references('id')->on('agents')->onDelete('set null');
@@ -38,7 +43,6 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
-
     /**
      * Reverse the migrations.
      */

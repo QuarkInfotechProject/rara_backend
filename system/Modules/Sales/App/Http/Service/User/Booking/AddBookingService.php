@@ -32,7 +32,7 @@ class AddBookingService
                 'agent_id' => null,
                 'from_date' => $data['from_date'] ?? null,
                 'to_date' => $data['to_date'] ?? null,
-                'adult' => $data['adult'],
+                'adult' => $data['adult'] ?? 0,
                 'children' => $data['children'] ?? 0,
                 'infant' => $data['infant'] ?? 0,
                 'type' => $data['type'] ?? 'inquiry',
@@ -40,8 +40,13 @@ class AddBookingService
                 'fullname' => $data['fullname'],
                 'mobile_number' => $data['mobile_number'],
                 'email' => $data['email'],
-                'country' => $data['country'],
+                'country' => $data['country'] ?? null,
                 'note' => $data['note'] ?? null,
+                'group_size' => $data['group_size'] ?? null,
+                'preferred_date' => $data['preferred_date'] ?? null,
+                'duration' => $data['duration'] ?? null,
+                'budget_range' => $data['budget_range'] ?? null,
+                'special_message' => $data['special_message'] ?? null,
             ]);
 
             $ref_no = sprintf(
@@ -87,16 +92,21 @@ class AddBookingService
             'agent_id' => 'nullable|exists:agents,id',
             'from_date' => 'nullable|date',
             'to_date' => 'nullable|date|after_or_equal:from_date',
-            'adult' => 'required|integer|min:1',
+            'adult' => 'nullable|integer|min:1',
             'infant' => 'nullable|integer|min:0',
             'children' => 'nullable|integer|min:0',
             'type' => 'required|in:booking,inquiry',
             'fullname' => 'required|string|max:255',
             'mobile_number' => 'nullable|string|max:20',
             'email' => 'required|email|max:255',
-            'country' => 'required|string|max:255',
+            'country' => 'nullable|string|max:255',
             'note' => 'nullable|string',
             'additional_products' => 'nullable|array',
+            'group_size' => 'nullable|integer|min:1',
+            'preferred_date' => 'nullable|date',
+            'duration' => 'nullable|integer|min:1',
+            'budget_range' => 'nullable|string|max:255',
+            'special_message' => 'nullable|string',
         ];
 
         $messages = [
@@ -106,15 +116,15 @@ class AddBookingService
             'from_date.required' => 'The start date is required.',
             'to_date.required' => 'The end date is required.',
             'to_date.after_or_equal' => 'The end date must be after or equal to the start date.',
-            'adult.required' => 'The number of adult is required.',
-            'adult.min' => 'There must be at least one adult.',
+//            'adult.required' => 'The number of adult is required.',
+//            'adult.min' => 'There must be at least one adult.',
             'type.required' => 'The booking type is required.',
             'type.in' => 'The booking type must be either "booking" or "inquiry".',
             'fullname.required' => 'The full name is required.',
             'email.required' => 'The email address is required.',
             'email.email' => 'Please provide a valid email address.',
-            'country.required' => 'The country is required.',
-            'additional_products.*.id.required' => 'Each additional product must have an ID.',
+//            'country.required' => 'The country is required.',
+//            'additional_products.*.id.required' => 'Each additional product must have an ID.',
         ];
 
         $validator = Validator::make($data, $rules, $messages);
