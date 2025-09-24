@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\User\App\Models\User;
+use Modules\Media\Trait\HasMedia;
+
 
 class ProductRatingReview extends Model
 {
-    use HasFactory;
+    use HasFactory,HasMedia;
 
     protected $fillable = [
         'product_id',
@@ -34,6 +36,23 @@ class ProductRatingReview extends Model
         'overall_rating' => 'decimal:2',
         'approved' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Save attached files when review is saved
+        static::saved(function ($review) {
+            if (request()->has('files')) {
+                $review->syncFiles(request('files')); // Now this works
+            }
+        });
+
+        // Detach files when review is deleted
+        static::deleting(function ($review) {
+            $review->files()->detach();
+        });
+    }
 
     /**
      * Get the product that owns the review.

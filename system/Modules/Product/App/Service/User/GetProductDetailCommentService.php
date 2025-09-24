@@ -12,14 +12,14 @@ class GetProductDetailCommentService
         try {
             $product = Product::where('slug', $slug)->firstOrFail();
 
-            $reviews = ProductRatingReview::with(['user:id,full_name,country,email'])
+            $reviews = ProductRatingReview::with(['user:id,full_name,country,email', 'files'])
                 ->where('product_id', $product->id)
                 ->where('approved', 1)
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage, ['*'], 'page', $page);
 
             if ($reviews->currentPage() > $reviews->lastPage()) {
-                $reviews = ProductRatingReview::with(['user:id,full_name,country,email'])
+                $reviews = ProductRatingReview::with(['user:id,full_name,country,email', 'files'])
                     ->where('product_id', $product->id)
                     ->where('approved', 1)
                     ->orderBy('created_at', 'desc')
@@ -49,6 +49,9 @@ class GetProductDetailCommentService
                     'reply_to_public_review' => $review->reply_to_public_review,
                     'approved' => (bool) $review->approved,
                     'reviewed_at' => $review->created_at->toDateTimeString(),
+                    'files' => [
+                        'reviewImages' => $this->getMediaFiles($review, 'review_profile', true),
+                    ],
                 ];
             });
 
@@ -121,5 +124,33 @@ class GetProductDetailCommentService
             'total_comments' => $totalComments,
             'rating_distribution' => $ratingDistribution,
         ];
+    }
+
+    /**
+     * Get media files for review
+     *
+     * @param mixed $review
+     * @param string $type
+     * @param bool $multiple
+     * @return array|null
+     */
+    private function getMediaFiles($review, $type, $multiple = false)
+    {
+        $baseImageFiles = $review->filterFiles($type)->get();
+
+        if ($multiple) {
+            return $baseImageFiles->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'url' => $file->path . '/' . $file->temp_filename,
+                ];
+            })->toArray();
+        } else {
+            $file = $baseImageFiles->first();
+            return $file ? [
+                'id' => $file->id,
+                'url' => $file->path . '/' . $file->temp_filename,
+            ] : null;
+        }
     }
 }

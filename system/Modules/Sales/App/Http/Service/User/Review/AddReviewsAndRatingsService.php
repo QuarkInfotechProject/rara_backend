@@ -6,28 +6,24 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
 use Modules\Product\App\Models\ProductRatingReview;
+//use Modules\Shared\App\Models\File; // Assuming you have a File model
 
 class AddReviewsAndRatingsService
 {
-
-    public function submitReview($data)
+    public function submitReview(array $data)
     {
         try {
-            // Check if user is authenticated
             $isAuthenticated = auth()->check();
 
-            if (!$isAuthenticated) {
-                // For guest users, email is required
-                if (empty($data['email'])) {
-                    throw ValidationException::withMessages([
-                        'email' => ['Email is required for guest reviews.']
-                    ]);
-                }
+            // Guest email check
+            if (!$isAuthenticated && empty($data['email'])) {
+                throw ValidationException::withMessages([
+                    'email' => ['Email is required for guest reviews.']
+                ]);
             }
 
             // Check for existing review
             $existingReviewQuery = ProductRatingReview::where('product_id', $data['product_id']);
-
             if ($isAuthenticated) {
                 $existingReviewQuery->where('user_id', auth()->id());
             } else {
@@ -35,9 +31,7 @@ class AddReviewsAndRatingsService
                     ->whereNull('user_id');
             }
 
-            $existingReview = $existingReviewQuery->first();
-
-            if ($existingReview) {
+            if ($existingReviewQuery->exists()) {
                 throw ValidationException::withMessages([
                     'review' => ['You have already submitted a review for this product.']
                 ]);
@@ -52,15 +46,16 @@ class AddReviewsAndRatingsService
                 'communication' => 'required|numeric|min:1|max:5',
                 'public_review' => 'required|string|min:10',
                 'private_review' => 'nullable|string',
+                'files' => 'required|array',
+                'files.review_profile' => 'required|array|min:1',
+                'files.review_profile.*' => 'exists:files,id',
             ];
 
-            // Add email validation for guest users
             if (!$isAuthenticated) {
                 $rules['email'] = 'required|email';
             }
 
             $validator = Validator::make($data, $rules);
-
             if ($validator->fails()) {
                 throw new ValidationException($validator);
             }
@@ -78,34 +73,48 @@ class AddReviewsAndRatingsService
                 'overall_rating' => $overallRating,
                 'public_review' => $data['public_review'],
                 'private_review' => $data['private_review'] ?? null,
-                'approved' =>0,
+                'approved' => 0,
             ];
 
-            // Add user_id or email based on authentication status
             if ($isAuthenticated) {
                 $reviewData['user_id'] = auth()->id();
-                $reviewData['email'] = auth()->user()->email; // Store email for authenticated users too
+                $reviewData['email'] = auth()->user()->email;
             } else {
                 $reviewData['user_id'] = null;
                 $reviewData['email'] = $data['email'];
             }
 
-            $review = new ProductRatingReview($reviewData);
-            $review->save();
+            $review = ProductRatingReview::create($reviewData);
+
+            // Attach files after saving - make sure to specify the type
+            if (!empty($data['files']['review_profile'])) {
+                $review->syncFiles([
+                    'review_profile' => $data['files']['review_profile']
+                ]);
+            }
 
             // Update product ratings
             $this->updateProductRatings($data['product_id']);
 
-            return $review;
+            // Get files using the same pattern as product service
+            $reviewFiles = $this->getMediaFiles($review, 'review_profile', true);
+
+            return [
+                'code' => 0,
+                'message' => 'Thank you for your review! It has been added successfully.',
+                'data' => array_merge($review->toArray(), [
+                    'files' => $reviewFiles
+                ])
+            ];
 
         } catch (ValidationException $e) {
-            throw $e; // Re-throw validation exceptions
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Review service error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
                 'data' => $data
             ]);
-            throw $e; // Re-throw to be caught by controller
+            throw $e;
         }
     }
 
@@ -124,5 +133,25 @@ class AddReviewsAndRatingsService
             ->count();
 
         $product->save();
+    }
+
+    private function getMediaFiles($entity, $type, $multiple = false)
+    {
+        $baseImageFiles = $entity->filterFiles($type)->get();
+
+        if ($multiple) {
+            return $baseImageFiles->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'url' => $file->path . '/' . $file->temp_filename,
+                ];
+            })->toArray();
+        } else {
+            $file = $baseImageFiles->first();
+            return $file ? [
+                'id' => $file->id,
+                'url' => $file->path . '/' . $file->temp_filename,
+            ] : null;
+        }
     }
 }
