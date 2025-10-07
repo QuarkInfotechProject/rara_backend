@@ -46,6 +46,11 @@ use Modules\Product\App\Http\Controllers\Product\Activities\CreateActivitiesCont
 use Modules\Product\App\Http\Controllers\Product\Activities\FetchActivitiesDetailController;
 use Modules\Product\App\Http\Controllers\Product\Activities\PaginateActivitiesController;
 use Modules\Product\App\Http\Controllers\Product\Activities\UpdateActivitiesController;
+use Modules\Product\App\Http\Controllers\Product\Category\CreateProductCategoryController;
+use Modules\Product\App\Http\Controllers\Product\Category\FetchAProductCategoryDetailController;
+use Modules\Product\App\Http\Controllers\Product\Category\PaginateProductCategoryController;
+use Modules\Product\App\Http\Controllers\Product\Category\UpdateProductCategoryController;
+use Modules\Product\App\Http\Controllers\Product\Category\ListActiveProductCategoryController;
 
 
 /*
@@ -90,6 +95,23 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' 
         ->middleware('can:view_product');
 
     Route::get('list', ListManagerController::class)
+        ->middleware('can:view_product');
+});
+
+Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' => 'category'], function () {
+    Route::post('create', CreateProductCategoryController::class)
+        ->middleware('can:view_product');
+
+    Route::get('lists', PaginateProductCategoryController::class)
+        ->middleware('can:view_product');
+
+    Route::get('detail/{id}', FetchAProductCategoryDetailController::class)
+        ->middleware('can:view_product');
+
+    Route::post('update', UpdateProductCategoryController::class)
+        ->middleware('can:view_product');
+
+    Route::get('active/list', ListActiveProductCategoryController::class)
         ->middleware('can:view_product');
 });
 
