@@ -17,6 +17,7 @@ class ProductRatingReview extends Model
         'product_id',
         'user_id',
         'email',
+        'full_name',
         'cleanliness',
         'hospitality',
         'value_for_money',
