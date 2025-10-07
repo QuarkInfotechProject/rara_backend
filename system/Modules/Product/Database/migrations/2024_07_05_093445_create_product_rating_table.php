@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('product_rating_reviews', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('user_id')->nullable(); // Nullable for guest reviews
-            $table->string('email')->nullable(); // Email for both guests and logged-in users
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('email')->nullable();
+            $table->string('full_name')->nullable();
             $table->decimal('cleanliness', 3, 2)->nullable();
             $table->decimal('hospitality', 3, 2)->nullable();
             $table->decimal('value_for_money', 3, 2)->nullable();
