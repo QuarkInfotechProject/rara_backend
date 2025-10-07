@@ -107,10 +107,10 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' 
 
     Route::get('detail/{id}', FetchAProductCategoryDetailController::class)
         ->middleware('can:view_product');
-//
+
     Route::post('update', UpdateProductCategoryController::class)
         ->middleware('can:view_product');
-//
+
     Route::get('active/list', ListActiveProductCategoryController::class)
         ->middleware('can:view_product');
 });
