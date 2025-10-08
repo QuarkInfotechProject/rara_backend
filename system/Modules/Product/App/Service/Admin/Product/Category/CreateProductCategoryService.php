@@ -27,7 +27,10 @@ class CreateProductCategoryService
                 'status' => $data['status'],
                 'meta_title' => $data['meta_title'] ?? null,
                 'meta_description' => $data['meta_description'] ?? null,
-                'keywords' => $data['keywords'] ?? null, ]);
+                'keywords' => isset($data['keywords'])
+                    ? json_encode(array_map('trim', explode(',', $data['keywords'])))
+                    : null,
+            ]);
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack(); throw $exception;
@@ -43,7 +46,7 @@ class CreateProductCategoryService
             'status' => 'required|string|in:active,inactive',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
-            'keywords' => 'nullable|string|max:255',
+            'keywords' => 'nullable|string|max:1000',
             ]);
     }
 }
