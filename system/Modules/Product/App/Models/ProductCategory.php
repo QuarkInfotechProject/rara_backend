@@ -28,6 +28,9 @@ class ProductCategory extends Model
         'meta_description',
         'keywords',
     ];
+    protected $casts = [
+        'keywords' => 'array',
+    ];
     protected $dates = ['deleted_at'];
 
 }
