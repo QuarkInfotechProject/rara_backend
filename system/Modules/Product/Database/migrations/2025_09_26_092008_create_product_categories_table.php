@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('meta_title',255)->nullable();
             $table->text('meta_description')->nullable();
-            $table->string('keywords',255)->nullable();
+            $table->text('keywords')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

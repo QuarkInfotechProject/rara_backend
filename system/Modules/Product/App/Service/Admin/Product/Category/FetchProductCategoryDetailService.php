@@ -13,15 +13,16 @@ class FetchProductCategoryDetailService
 
             return [
                 'id' => $category->id,
-                'category_name' => $category->category_name,
+                'name' => $category->category_name,
                 'slug' => $category->slug,
-                'description' => $category->description,
-                'status' => $category->status,
-                'meta_title' => $category->meta_title,
-                'meta_description' => $category->meta_description,
-                'keywords' => $category->keywords,
+                'description' => $category->description ?? '',
                 'created_at' => $category->created_at,
                 'updated_at' => $category->updated_at,
+                'meta' => [
+                    'metaTitle' => $category->meta_title ?? '',
+                    'keywords' => $category->keywords ?? [],
+                    'metaDescription' => $category->meta_description ?? '',
+                ],
             ];
         } catch (\Exception $exception) {
             throw $exception;

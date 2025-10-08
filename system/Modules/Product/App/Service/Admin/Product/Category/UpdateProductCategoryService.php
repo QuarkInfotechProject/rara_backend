@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
+use Modules\Product\App\Models\ProductCategory;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
 
@@ -22,8 +23,17 @@ class UpdateProductCategoryService
             throw new ValidationException($validator);
         }
 
-        $category = Product::findOrFail($data['id']);
+        $category = ProductCategory::findOrFail($data['id']);
 
+        $keywords = null;
+
+        if (!empty($data['keywords'])) {
+            if (is_array($data['keywords'])) {
+                $keywords = $data['keywords'];
+            } else {
+                $keywords = array_filter(array_map('trim', explode(',', $data['keywords'])));
+            }
+        }
         $category->update([
             'category_name'    => $data['category_name'],
             'slug'             => $data['slug'],
@@ -31,9 +41,8 @@ class UpdateProductCategoryService
             'status'           => $data['status'],
             'meta_title'       => $data['meta_title'] ?? null,
             'meta_description' => $data['meta_description'] ?? null,
-            'keywords'         => $data['keywords'] ?? null,
+            'keywords'         => $keywords,
         ]);
-
         return $category;
     }
 
@@ -52,7 +61,7 @@ class UpdateProductCategoryService
             'status'           => 'required|string|in:active,inactive',
             'meta_title'       => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:255',
-            'keywords'         => 'nullable|string|max:255',
+            'keywords'         => 'nullable|string|max:1000',
         ]);
     }
 }
