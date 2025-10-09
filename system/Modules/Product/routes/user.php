@@ -20,6 +20,7 @@ use Modules\Product\App\Http\Controllers\User\Product\ListSafariForHomepageContr
 use Modules\Product\App\Http\Controllers\User\Product\ListHeroProductForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListPopularProductForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListAdventuresProductForHomepageController;
+use Modules\Product\App\Http\Controllers\User\Product\ListExploreProductForHomepageController;
 /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -76,5 +77,7 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'homepage']
     Route::get('popular/product/{type}', ListPopularProductForHomepageController::class);
 
     Route::get('adventure/list', ListAdventuresProductForHomepageController::class);
+
+    Route::get('explore/list', ListExploreProductForHomepageController::class);
 
 });
