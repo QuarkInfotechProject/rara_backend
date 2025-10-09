@@ -13,9 +13,8 @@ class ListExploreForHomepageService
     {
         try {
             $query = $this->getBaseQuery();
-
-            // Get 7 random products from all types
-            $products = $query->inRandomOrder()->limit(7)->get();
+            
+            $products = $query->inRandomOrder()->limit(9)->get();
 
             return $this->transformProducts($products);
 
