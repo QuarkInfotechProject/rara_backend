@@ -13,7 +13,7 @@ class ListExploreForHomepageService
     {
         try {
             $query = $this->getBaseQuery();
-            
+
             $products = $query->inRandomOrder()->limit(9)->get();
 
             return $this->transformProducts($products);
