@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('category_name',255);
+            $table->string('name',255);
             $table->string('slug', 255)->unique();
             $table->text('description')->nullable();
             $table->string('status');
-            $table->string('meta_title',255)->nullable();
-            $table->text('meta_description')->nullable();
-            $table->text('keywords')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -59,6 +59,10 @@ class ActivityTypeConstant
     public const BLOG_CATEGORY_DELETED = 'Blog Category Deleted';
     public const BLOG_CATEGORY_UPDATED = 'Blog Category Updated';
 
+    public const PRODUCT_CATEGORY_ADDED = 'Product Category Added';
+    public const PRODUCT_CATEGORY_DELETED = 'Product Category Deleted';
+    public const PRODUCT_CATEGORY_UPDATED = 'Product Category Updated';
+
     public const BLOG_ADDED = 'Blog Added';
     public const BLOG_TRASHED = 'Blog Trashed';
     public const BLOG_RESTORE = 'Blog Restore';

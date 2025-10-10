@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
+use Modules\Product\App\Models\ProductCategoryRelation;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
 
@@ -50,6 +51,8 @@ class UpdateTourService
                 'manager_id' => $data['manager_id']?? null,
             ]);
 
+            $this->updateCategory($product, $data['category']);
+
             $this->updateProductPrices($product, $data['prices']);
             $this->updateFaqs($product, $data['faqs']);
             $this->updateOverview($product, $data['overview']); // Fixed: removed extra parameter
@@ -77,6 +80,18 @@ class UpdateTourService
         ));
 
         return $product;
+    }
+
+    private function updateCategory(Product $product, int $categoryId): void
+    {
+        // Delete existing relation
+        ProductCategoryRelation::where('product_id', $product->id)->delete();
+
+        // Create new relation
+        ProductCategoryRelation::create([
+            'product_id' => $product->id,
+            'category_id' => $categoryId,
+        ]);
     }
 
     private function updateProductPrices(Product $product, array $prices)

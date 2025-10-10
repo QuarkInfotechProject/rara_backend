@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
+use Modules\Product\App\Models\ProductCategoryRelation;
 use Modules\Product\App\Models\ProductFaq;
 use Modules\Product\App\Models\ProductItinerary;
 use Modules\Product\App\Models\ProductOverview;
@@ -51,6 +52,8 @@ class CreateTourService
                 'display_homepage' => filter_var($data['display_homepage'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                 'manager_id' => $data['manager_id']?? null,
             ]);
+
+            $this->attachCategory($product, $data['category']);
 
             $this->createProductPrices($product, $data['prices']);
             $this->createFaqs($product, $data['faqs']);
@@ -246,6 +249,18 @@ class CreateTourService
             'pdf_path' => $pdfPath,
         ]);
 
+    }
+
+    private function attachCategory(Product $product, $categoryId): void
+    {
+        if (empty($categoryId)) {
+            return;
+        }
+
+        ProductCategoryRelation::create([
+            'product_id' => $product->id,
+            'category_id' => $categoryId,
+        ]);
     }
 
     public function validateCircuitData(array $data)

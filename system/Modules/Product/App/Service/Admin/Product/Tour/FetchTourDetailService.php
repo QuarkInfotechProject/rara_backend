@@ -19,14 +19,27 @@ class FetchTourDetailService
                 'relatedBlogs',
                 'tags',
                 'prices',
-                'dossiers'
-            ])->findOrFail($id);
+                'dossiers',
+                'category'
+            ])->find($id);
+
+            if (!$product) {
+                return [
+                    'status' => 0,
+                    'message' => 'Product not found',
+                    'data' => null,
+                ];
+            }
 
             $data = $product->toArray();
 
             $fieldsToRemove = ['manager_id', 'cancellation_policy', 'region', 'created_at', 'updated_at'];
             foreach ($fieldsToRemove as $field) {
                 unset($data[$field]);
+            }
+
+            if ($product->category?->category_detail) {
+                $data['category_detail'] = $product->category->category_detail;
             }
 
             $data['faqs'] = $product->faqs->map(function ($faq) {
