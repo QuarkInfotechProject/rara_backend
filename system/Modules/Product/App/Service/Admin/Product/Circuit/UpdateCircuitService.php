@@ -33,7 +33,7 @@ class UpdateCircuitService
                 'slug' => $data['slug'],
                 'short_code' => $data['short_code'],
                 'type' => $data['type'],
-                'category_details' => $data['category_details'],
+//                'category_details' => $data['category_details'],
                 'tagline' => $data['tagline'],
                 'short_description' => $data['short_description'],
                 'description' => $data['description'],
