@@ -12,7 +12,7 @@ class ListNavbarForHomepageService
             $products = $this->getBaseQuery()->get();
 
             return [
-                'categories' => $this->transformProductsByCategory($products)
+                'data' => $this->transformProductsByTypeAndCategory($products)
             ];
 
         } catch (\Exception $exception) {
@@ -24,27 +24,34 @@ class ListNavbarForHomepageService
     {
         return Product::query()
             ->where('status', 'published')
-            ->with(['category.categoryDetail']);
+            ->with(['category.categoryDetail']); // only eager-load category
     }
 
-    private function transformProductsByCategory($products)
+    private function transformProductsByTypeAndCategory($products)
     {
         $navbar = [];
 
         $products->each(function ($product) use (&$navbar) {
+            $type = $product->type ?? 'others';
+
+            if (!isset($navbar[$type])) {
+                $navbar[$type] = [];
+            }
+
             if ($product->category && $product->category->categoryDetail) {
                 $category = $product->category->categoryDetail;
                 $categoryId = str()->slug($category->name);
 
-                if (!isset($navbar[$categoryId])) {
-                    $navbar[$categoryId] = [
+                // Initialize category if not exists
+                if (!isset($navbar[$type][$categoryId])) {
+                    $navbar[$type][$categoryId] = [
                         'id' => $category->id,
                         'name' => $category->name,
                         'products' => []
                     ];
                 }
 
-                $navbar[$categoryId]['products'][] = [
+                $navbar[$type][$categoryId]['products'][] = [
                     'id' => $product->id,
                     'name' => $product->name,
                     'slug' => $product->slug,
@@ -53,7 +60,12 @@ class ListNavbarForHomepageService
             }
         });
 
-        return array_values($navbar);
+        // Convert categories to indexed arrays for each type
+        foreach ($navbar as $type => &$categories) {
+            $categories = array_values($categories);
+        }
+
+        return $navbar;
     }
 
     private function getMediaFiles($post, $type, $multiple = false)
