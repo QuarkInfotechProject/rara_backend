@@ -184,4 +184,10 @@ class Product extends Model
         return $this->hasMany(ProductDeparture::class);
     }
 
+    public function category()
+    {
+        return $this->hasOne(ProductCategoryRelation::class, 'product_id')
+            ->with('categoryDetail');
+    }
+
 }

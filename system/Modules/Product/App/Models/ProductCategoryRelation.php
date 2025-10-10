@@ -26,4 +26,9 @@ class ProductCategoryRelation extends Model
         'product_id',
     ];
     protected $dates = ['deleted_at'];
+
+    public function categoryDetail()
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
+    }
 }

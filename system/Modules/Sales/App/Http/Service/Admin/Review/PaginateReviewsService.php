@@ -24,9 +24,26 @@ class PaginateReviewsService
 
         $query->with(['product:id,name', 'user:id,full_name,email']);
 
-        $query->select('id', 'product_id', 'user_id', 'email', 'overall_rating', 'public_review', 'approved');
+        $query->select('id', 'product_id', 'user_id', 'email','full_name', 'overall_rating', 'public_review', 'approved');
 
-        return $query->paginate($perPage);
+        return $query->paginate($perPage)->through(function ($review) {
+            return [
+                'id' => $review->id,
+                'product_id' => $review->product_id,
+                'user_id' => $review->user_id,
+                'email' => $review->email,
+                'full_name' => $review->user
+                    ? $review->user->full_name
+                    : ($review->full_name ?? null),
+                'overall_rating' => $review->overall_rating,
+                'public_review' => $review->public_review,
+                'approved' => $review->approved,
+                'product' => $review->product ? [
+                    'id' => $review->product->id,
+                    'name' => $review->product->name,
+                ] : null,
+            ];
+        });
     }
 
 
