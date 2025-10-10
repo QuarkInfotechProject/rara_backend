@@ -26,7 +26,7 @@ class ListTrekForHomepageService
 
     private function getBaseQuery(): Builder
     {
-        return Product::query()
+        $query = Product::query()
             ->select([
                 'products.id',
                 'products.name',
@@ -47,10 +47,13 @@ class ListTrekForHomepageService
                     $query->select('product_id', 'number_of_people', 'original_price_usd', 'discounted_price_usd')
                         ->orderBy('number_of_people', 'asc');
                 },
-                'overview:id,product_id,duration,trip_grade,max_altitude,group_size,best_time,starts'
+                'overview:id,product_id,duration,trip_grade,max_altitude,group_size,best_time,starts',
+                'ratingReviews' => function ($query) {
+                    $query->select('product_id', 'overall_rating')
+                        ->where('approved', true);
+                }
             ]);
 
-        // wishlist join if user logged in
         $user = Auth::guard('user')->user();
         if ($user) {
             $userId = $user->id;
@@ -99,11 +102,14 @@ class ListTrekForHomepageService
                 'starts' => $product->overview->starts,
             ] : null;
 
-            $product->slug = '/treks/' . $product->slug;
+            unset($product->average_rating, $product->total_reviews);
+
+            $product->slug = '/trek/' . $product->slug;
 
             return $product;
         });
     }
+
     private function getMediaFiles($post, $type, $multiple = false)
     {
         $baseImageFiles = $post->filterFiles($type)->get();
