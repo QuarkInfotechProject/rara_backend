@@ -190,4 +190,9 @@ class Product extends Model
             ->with('categoryDetail');
     }
 
+    public function ratingReviews()
+    {
+        return $this->hasMany(ProductRatingReview::class);
+    }
+
 }
