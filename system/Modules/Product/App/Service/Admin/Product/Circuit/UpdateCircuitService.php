@@ -11,6 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
+use Modules\Product\App\Models\ProductCategoryRelation;
 
 class UpdateCircuitService
 {
@@ -50,6 +51,8 @@ class UpdateCircuitService
                 'manager_id' => $data['manager_id']?? null,
             ]);
 
+            $this->updateCategory($product, $data['category']);
+
             $this->updateProductPrices($product, $data['prices']);
             $this->updateFaqs($product, $data['faqs']);
             $this->updateOverview($product, $data['overview']); // Fixed: removed extra parameter
@@ -77,6 +80,18 @@ class UpdateCircuitService
         ));
 
         return $product;
+    }
+
+    private function updateCategory(Product $product, int $categoryId): void
+    {
+        // Delete existing relation
+        ProductCategoryRelation::where('product_id', $product->id)->delete();
+
+        // Create new relation
+        ProductCategoryRelation::create([
+            'product_id' => $product->id,
+            'category_id' => $categoryId,
+        ]);
     }
 
     private function updateProductPrices(Product $product, array $prices)

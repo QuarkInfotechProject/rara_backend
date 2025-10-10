@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Meta\Trait\HasMetaData;
 
 class ProductCategory extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory,SoftDeletes,HasMetaData;
 
     /**
      * The attributes that are mass assignable.
@@ -20,17 +21,20 @@ class ProductCategory extends Model
     protected $table = 'product_categories';
 
     protected $fillable = [
-        'category_name',
+        'name',
         'slug',
         'description',
         'status',
-        'meta_title',
-        'meta_description',
-        'keywords',
     ];
-    protected $casts = [
-        'keywords' => 'array',
-    ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($entity) {
+            $entity->saveMetaData(request('meta', []));
+        });
+    }
     protected $dates = ['deleted_at'];
 
 }

@@ -10,7 +10,8 @@ class PaginateCircuitService
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = Product::query()
-             ->where('type', 'trek')
+            ->where('type', 'trek')
+            ->with('category.categoryDetail')
             ->select([
                 'id',
                 'name',
@@ -25,7 +26,15 @@ class PaginateCircuitService
 
         $this->applyFilters($query, $filters);
 
-        return $query->paginate($perPage);
+        $paginator = $query->paginate($perPage);
+
+        $paginator->getCollection()->transform(function ($product) {
+            $product->category_name = $product->category?->categoryDetail?->name;
+            unset($product->category);
+            return $product;
+        });
+
+        return $paginator;
     }
 
     private function applyFilters($query, array $filters): void

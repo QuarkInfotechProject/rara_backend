@@ -14,6 +14,7 @@ use Modules\Product\App\Models\ProductOverview;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
 use Modules\Product\App\Models\Dossier;
+use Modules\Product\App\Models\ProductCategoryRelation;
 
 class CreateCircuitService
 {
@@ -33,7 +34,6 @@ class CreateCircuitService
                 'slug' => $data['slug'],
                 'short_code' => $data['short_code'],
                 'type' => $data['type'],
-                'category_details' => $data['category_details'],
                 'tagline' => $data['tagline'],
                 'short_description' => $data['short_description'],
                 'description' => $data['description'],
@@ -50,6 +50,8 @@ class CreateCircuitService
                 'display_homepage' => filter_var($data['display_homepage'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                 'manager_id' => $data['manager_id']?? null,
             ]);
+
+            $this->attachCategory($product, $data['category']);
 
             $this->createProductPrices($product, $data['prices']);
             $this->createFaqs($product, $data['faqs']);
@@ -183,6 +185,18 @@ class CreateCircuitService
         if (!empty($cleanIds)) {
             $product->whatToBring()->attach($cleanIds);
         }
+    }
+
+    private function attachCategory(Product $product, $categoryId): void
+    {
+        if (empty($categoryId)) {
+            return;
+        }
+
+        ProductCategoryRelation::create([
+            'product_id' => $product->id,
+            'category_id' => $categoryId,
+        ]);
     }
 
     private function attachRelatedCircuits(Product $product, array $circuitIds)
@@ -341,6 +355,8 @@ class CreateCircuitService
             'departures.*.departure_from' => 'required|string|max:255',
             'departures.*.departure_to' => 'required|string|max:255',
             'departures.*.departure_per_price' => 'required|string|max:255',
+
+            'category' => 'required|exists:product_categories,id',
         ]);
     }
 }
