@@ -75,6 +75,12 @@ class ListActivitiesForHomepageService
             $product->featuredImage = $this->getMediaFiles($product, 'featuredImage');
             $product->featuredImages = $this->getMediaFiles($product, 'featuredImages', true);
 
+            $ratings = $product->ratingReviews->pluck('overall_rating')->map(fn($r) => (float) $r);
+            $product->average_rating = $ratings->count() > 0 ? round($ratings->avg(), 1) : null;
+            $product->total_rating = $ratings->count(); // total number of reviews
+
+            unset($product->ratingReviews);
+
             $product->tags = $product->tags->map(function ($tag) {
                 return [
                     'id' => $tag->id,
@@ -101,8 +107,6 @@ class ListActivitiesForHomepageService
                 'best_time' => $product->overview->best_time,
                 'starts' => $product->overview->starts,
             ] : null;
-
-            unset($product->average_rating, $product->total_reviews);
 
             $product->slug = '/activities/' . $product->slug;
 
