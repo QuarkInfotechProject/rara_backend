@@ -12,25 +12,38 @@ class PaginateProductCategoryService
         $query = ProductCategory::query()
             ->select([
                 'id',
-                'category_name',
+                'name',
                 'slug',
                 'description',
                 'status',
-                'meta_title',
-                'meta_description',
-                'keywords'
             ])
+            ->with('meta')
             ->orderBy('id', 'desc');
 
         $this->applyFilters($query, $filters);
 
-        return $query->paginate($perPage);
+        $paginator = $query->paginate($perPage);
+
+        $paginator->getCollection()->transform(function ($category) {
+            $entityMetadata = $category->meta()->first();
+
+            $category->meta = [
+                'metaTitle' => $entityMetadata->meta_title ?? '',
+                'keywords' => !empty($entityMetadata->meta_keywords)
+                    ? json_decode($entityMetadata->meta_keywords, true)
+                    : [],
+                'metaDescription' => $entityMetadata->meta_description ?? '',
+            ];
+            return $category;
+        });
+
+        return $paginator;
     }
 
     private function applyFilters($query, array $filters): void
     {
         if (!empty($filters['category_name'])) {
-            $query->where('category_name', 'like', '%' . $filters['category_name'] . '%');
+            $query->where('name', 'like', '%' . $filters['category_name'] . '%');
         }
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
