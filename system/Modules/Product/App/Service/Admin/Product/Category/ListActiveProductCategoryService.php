@@ -10,7 +10,7 @@ class ListActiveProductCategoryService
     public function activeList(): array
     {
         return ProductCategory::query()
-            ->select(['id', 'category_name'])
+            ->select(['id', 'name'])
             ->where('status', 'active')
             ->orderBy('id', 'asc')
             ->get()
