@@ -24,7 +24,7 @@ class ListNavbarForHomepageService
     {
         return Product::query()
             ->where('status', 'published')
-            ->with(['category.categoryDetail']); // only load category relation
+            ->with(['category.categoryDetail']);
     }
 
     private function transformProductsByCategory($products)
@@ -53,7 +53,7 @@ class ListNavbarForHomepageService
             }
         });
 
-        return array_values($navbar); // indexed array for JSON
+        return array_values($navbar);
     }
 
     private function getMediaFiles($post, $type, $multiple = false)
