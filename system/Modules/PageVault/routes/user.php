@@ -7,6 +7,7 @@ use Modules\PageVault\App\Http\Controllers\User\GetPagesDetailController;
 use Modules\PageVault\App\Http\Controllers\User\GetFaqsListByCategoryController;
 use Modules\PageVault\App\Http\Controllers\User\GetTeamListController;
 use Modules\PageVault\App\Http\Controllers\User\AddCtaByTypeController;
+use Modules\PageVault\App\Http\Controllers\User\AddCarRentalController;
 
 
 
@@ -24,5 +25,11 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'page'], fu
     Route::get('faq/{slug}', GetFaqsListByCategoryController::class);
     Route::get('team', GetTeamListController::class);
     Route::post('add-cta', AddCtaByTypeController::class);
+
+});
+
+Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'car-rental'], function () {
+
+    Route::post('booking', AddCarRentalController::class);
 
 });
