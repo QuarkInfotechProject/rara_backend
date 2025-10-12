@@ -75,7 +75,7 @@ class AddBookingService
             DB::commit();
 
             // Send inquiry confirmation email
-            $this->sendEmailOnBooking($data['fullname'], $data['email']);
+//            $this->sendEmailOnBooking($data['fullname'], $data['email']);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -163,7 +163,7 @@ class AddBookingService
             'title' => $template->title,
             'subject' => $template->subject,
             'description' => $message,
-            'email' => 'urmistha705@gmail.com.com',
+            'email' => 'urmistha705@gmailcom',
         ]);
 
         Event::dispatch(new SendNewInquireMail($newInquire));
