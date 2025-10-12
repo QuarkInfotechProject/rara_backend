@@ -39,7 +39,7 @@ class AddCTAService
 
             DB::commit();
 
-            $this->sendEmailOnBooking($validatedData['fullname'], $validatedData['email']);
+//            $this->sendEmailOnBooking($validatedData['fullname'], $validatedData['email']);
 
         } catch (\Exception $exception) {
             throw $exception;
@@ -60,7 +60,7 @@ class AddCTAService
             'title' => $template->title,
             'subject' => $template->subject,
             'description' => $message,
-            'email' => 'info@communityhomestay.com',
+            'email' => 'urmistha705@gmail.com',
         ]);
 
         Event::dispatch(new SendNewInquireMail($newInquire));
