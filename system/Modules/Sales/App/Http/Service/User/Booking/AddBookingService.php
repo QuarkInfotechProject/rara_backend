@@ -26,10 +26,10 @@ class AddBookingService
 
             $inquiry = Booking::create([
                 'product_id' => $data['product_id'],
-//                'user_id' => auth()->user()->id,
+                'agent_id' => $data['agent_id'] ?? null,
+                'user_id' => auth()->check() ? auth()->id() : null,
                 'product_name' => $product->name,
                 'product_type' => $product->type,
-                'agent_id' => null,
                 'from_date' => $data['from_date'] ?? null,
                 'to_date' => $data['to_date'] ?? null,
                 'adult' => $data['adult'] ?? 0,
@@ -38,17 +38,26 @@ class AddBookingService
                 'type' => $data['type'] ?? 'inquiry',
                 'status' => 'pending',
                 'fullname' => $data['fullname'],
-                'mobile_number' => $data['mobile_number'],
+                'mobile_number' => $data['mobile_number'] ?? null,
                 'email' => $data['email'],
                 'country' => $data['country'] ?? null,
                 'note' => $data['note'] ?? null,
+                'has_responded' => 0,
                 'group_size' => $data['group_size'] ?? null,
                 'preferred_date' => $data['preferred_date'] ?? null,
                 'duration' => $data['duration'] ?? null,
                 'budget_range' => $data['budget_range'] ?? null,
+                'accommodation_preference' => $data['accommodation_preference'] ?? null,
+                'transportation_preference' => $data['transportation_preference'] ?? null,
+                'preference_activities' => isset($data['preference_activities'])
+                    ? json_encode($data['preference_activities'])
+                    : null,
                 'special_message' => $data['special_message'] ?? null,
+                'special_requirement' => $data['special_requirement'] ?? null,
+                'desired_destination' => $data['desired_destination'] ?? null,
             ]);
 
+            // Generate reference number
             $ref_no = sprintf(
                 "%s-%s-%04d",
                 now()->format('Ymd'),
@@ -58,23 +67,25 @@ class AddBookingService
 
             $inquiry->update(['ref_no' => $ref_no]);
 
-            if (isset($data['additional_products'])) {
+            // Save any additional products linked to the inquiry
+            if (!empty($data['additional_products'])) {
                 $this->createAdditionalInquiryProducts($inquiry, $data['additional_products']);
             }
 
             DB::commit();
+
+            // Send inquiry confirmation email
             $this->sendEmailOnBooking($data['fullname'], $data['email']);
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
         }
-
     }
 
     private function createAdditionalInquiryProducts(Booking $inquiry, array $additionalProducts): void
     {
-        foreach ($additionalProducts as $product) {
-            $additionalProduct = Product::findOrFail($product);
+        foreach ($additionalProducts as $productId) {
+            $additionalProduct = Product::findOrFail($productId);
 
             AdditionalBookingProduct::create([
                 'booking_id' => $inquiry->id,
@@ -92,39 +103,38 @@ class AddBookingService
             'agent_id' => 'nullable|exists:agents,id',
             'from_date' => 'nullable|date',
             'to_date' => 'nullable|date|after_or_equal:from_date',
-            'adult' => 'nullable|integer|min:1',
-            'infant' => 'nullable|integer|min:0',
+            'adult' => 'nullable|integer|min:0',
             'children' => 'nullable|integer|min:0',
+            'infant' => 'nullable|integer|min:0',
             'type' => 'required|in:booking,inquiry',
             'fullname' => 'required|string|max:255',
             'mobile_number' => 'nullable|string|max:20',
             'email' => 'required|email|max:255',
             'country' => 'nullable|string|max:255',
             'note' => 'nullable|string',
-            'additional_products' => 'nullable|array',
-            'group_size' => 'nullable|integer|min:1',
+            'group_size' => 'nullable|string|max:255',
             'preferred_date' => 'nullable|date',
             'duration' => 'nullable|integer|min:1',
             'budget_range' => 'nullable|string|max:255',
+            'accommodation_preference' => 'nullable|string',
+            'transportation_preference' => 'nullable|string',
+            'preference_activities' => 'nullable|array',
             'special_message' => 'nullable|string',
+            'special_requirement' => 'nullable|string',
+            'desired_destination' => 'nullable|string',
+            'additional_products' => 'nullable|array',
         ];
 
         $messages = [
             'product_id.required' => 'A product must be selected.',
             'product_id.exists' => 'The selected product does not exist.',
             'agent_id.exists' => 'The selected agent does not exist.',
-            'from_date.required' => 'The start date is required.',
-            'to_date.required' => 'The end date is required.',
             'to_date.after_or_equal' => 'The end date must be after or equal to the start date.',
-//            'adult.required' => 'The number of adult is required.',
-//            'adult.min' => 'There must be at least one adult.',
             'type.required' => 'The booking type is required.',
-            'type.in' => 'The booking type must be either "booking" or "inquiry".',
+            'type.in' => 'The booking type must be either "Custom" or "inquiry".',
             'fullname.required' => 'The full name is required.',
             'email.required' => 'The email address is required.',
             'email.email' => 'Please provide a valid email address.',
-//            'country.required' => 'The country is required.',
-//            'additional_products.*.id.required' => 'Each additional product must have an ID.',
         ];
 
         $validator = Validator::make($data, $rules, $messages);
@@ -140,6 +150,10 @@ class AddBookingService
     {
         $template = EmailTemplate::where('name', 'new_inquire')->first();
 
+        if (!$template) {
+            return;
+        }
+
         $message = strtr($template->message, [
             '{GUEST_NAME}' => $name,
             '{GUEST_EMAIL}' => $email,
@@ -149,10 +163,9 @@ class AddBookingService
             'title' => $template->title,
             'subject' => $template->subject,
             'description' => $message,
-            'email' => 'info@communityhomestay.com',
+            'email' => 'urmistha705@gmail.com.com',
         ]);
 
         Event::dispatch(new SendNewInquireMail($newInquire));
     }
-
 }
