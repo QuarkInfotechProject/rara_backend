@@ -35,7 +35,12 @@ return new class extends Migration
             $table->date('preferred_date')->nullable();
             $table->integer('duration')->nullable();
             $table->string('budget_range')->nullable();
+            $table->text('accommodation_preference')->nullable();
+            $table->text('transportation_preference')->nullable();
+            $table->json('preference_activities')->nullable();
             $table->text('special_message')->nullable();
+            $table->text('special_requirement')->nullable();
+            $table->text('desired_destination')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('agent_id')->references('id')->on('agents')->onDelete('set null');
