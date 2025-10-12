@@ -46,9 +46,9 @@ class AddReviewsAndRatingsService
                 'communication' => 'required|numeric|min:1|max:5',
                 'public_review' => 'required|string|min:10',
                 'full_name' => 'required|string|max:255',
-                'private_review' => 'nullable|string',
-                'files' => 'required|array',
-                'files.review_profile' => 'required|array|min:1',
+                'private_review' => 'nullable|string', // optional now
+                'files' => 'nullable|array',           // optional now
+                'files.review_profile' => 'nullable|array',
                 'files.review_profile.*' => 'exists:files,id',
             ];
 
