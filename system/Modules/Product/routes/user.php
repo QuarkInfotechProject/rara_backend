@@ -13,6 +13,7 @@ use Modules\Product\App\Http\Controllers\User\Product\ListReviewsAndRatingForHom
 use Modules\Product\App\Http\Controllers\User\Product\SearchProductController;
 use Modules\Product\App\Http\Controllers\User\Product\ListAllProductSlugController;
 use Modules\Product\App\Http\Controllers\User\Product\ListProductOfDepartureController;
+use Modules\Product\App\Http\Controllers\User\Product\ListProductOfActivitiesController;
 use Modules\Product\App\Http\Controllers\User\Product\ListTrekForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListTourForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListActivitiesForHomepageController;
@@ -45,6 +46,8 @@ Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'product'],
     Route::get('slug-list', ListAllProductSlugController::class);
 
     Route::get('departure/lists', ListProductOfDepartureController::class);
+
+    Route::get('activities/lists', ListProductOfActivitiesController::class);
 });
 
 Route::group(['middleware' => ['cors', 'json.response', 'auth:user'], 'prefix' => 'product'], function () {
