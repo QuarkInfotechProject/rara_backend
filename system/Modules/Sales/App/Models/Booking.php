@@ -45,6 +45,16 @@ class Booking extends Model
         'group_name',
         'room_required',
         'ref_no',
+        'group_size',
+        'preferred_date',
+        'duration',
+        'budget_range',
+        'accommodation_preference',
+        'transportation_preference',
+        'preference_activities',
+        'special_message',
+        'special_requirement',
+        'desired_destination',
         'additional_note'
     ];
 

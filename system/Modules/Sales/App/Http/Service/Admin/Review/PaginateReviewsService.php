@@ -26,6 +26,8 @@ class PaginateReviewsService
 
         $query->select('id', 'product_id', 'user_id', 'email','full_name', 'overall_rating', 'public_review', 'approved');
 
+        $query->orderBy('id', 'desc');
+
         return $query->paginate($perPage)->through(function ($review) {
             return [
                 'id' => $review->id,

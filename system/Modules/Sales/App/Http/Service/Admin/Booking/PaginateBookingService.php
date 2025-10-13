@@ -67,7 +67,7 @@ class PaginateBookingService
                 return [
                     'id' => $booking->id,
                     'fullname' => $booking->fullname,
-                    'agent_name' => $booking->agent ? $booking->agent->firstname . ' ' . ($booking->agent->lastname ?? '') : null,
+//                    'agent_name' => $booking->agent ? $booking->agent->firstname . ' ' . ($booking->agent->lastname ?? '') : null,
                     'product_name' => $booking->product->name ?? null,
                     'product_type' => $booking->product->type ?? null,
                     'type' => $booking->type,
