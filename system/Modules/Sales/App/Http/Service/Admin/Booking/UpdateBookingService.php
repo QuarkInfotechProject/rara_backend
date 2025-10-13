@@ -27,7 +27,6 @@ class UpdateBookingService
             DB::beginTransaction();
 
             $booking = Booking::findOrFail($validatedData['id']);
-
             $product = Product::findOrFail($validatedData['product_id'] ?? $booking->product_id);
             $isUser = auth()->check();
 
@@ -75,23 +74,14 @@ class UpdateBookingService
                 $booking->update(['ref_no' => $ref_no]);
             }
 
-            // Update additional products
-            if (isset($validatedData['additional_products'])) {
-                $this->updateAdditionalBookingProducts($booking, $validatedData['additional_products']);
-            } else {
-                $booking->additionalBookingProducts()->delete();
-            }
-
-            // Send email if user exists
-            $user = $booking->user;
-//            if ($user) {
-//                $this->sendEmailOnTripCompleted($user);
-//            }
-
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            throw $e;
+            // Return proper JSON error response instead of invalid HTTP code
+            return response()->json([
+                'status' => 0,
+                'error' => 'Database error: ' . $e->getMessage(),
+            ], 400);
         }
 
         Event::dispatch(new AdminUserActivityLogEvent(
