@@ -30,6 +30,15 @@ use Modules\PageVault\App\Http\Controllers\Promotion\GetPromotionDetailControlle
 use Modules\PageVault\App\Http\Controllers\Promotion\ListAllPromotionController;
 use Modules\PageVault\App\Http\Controllers\Promotion\UpdatePromotionController;
 use Modules\PageVault\App\Http\Controllers\Dashboard\GetCtaStatsController;
+use Modules\PageVault\App\Http\Controllers\CarRental\AddCarRentalController;
+use Modules\PageVault\App\Http\Controllers\CarRental\ChangeCarRentalStatusController;
+use Modules\PageVault\App\Http\Controllers\CarRental\DeleteCarRentalController;
+use Modules\PageVault\App\Http\Controllers\CarRental\GetCarRentalDetailController;
+use Modules\PageVault\App\Http\Controllers\CarRental\PaginateCarRentalController;
+use Modules\PageVault\App\Http\Controllers\CarRental\GetCarRentalForUpdateDetailController;
+use Modules\PageVault\App\Http\Controllers\CarRental\UpdateCarRentalController;
+
+
 
 Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' => 'page'], function () {
 
@@ -83,6 +92,26 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' 
         ->middleware('can:view_cta');
     Route::post('paginate', PaginateCtaByCategoryController::class)
         ->middleware('can:view_cta');
+});
+
+Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' => 'car-rental'], function () {
+//    Route::post('add', AddCarRentalController::class)
+//        ->middleware('can:view_booking');
+    Route::post('change-status', ChangeCarRentalStatusController::class)
+        ->middleware('can:view_booking');
+    Route::get('delete/{id}', DeleteCarRentalController::class)
+        ->middleware('can:view_booking');
+    Route::get('detail/{id}', GetCarRentalDetailController::class)
+        ->middleware('can:view_booking');
+    Route::post('paginate', PaginateCarRentalController::class)
+        ->middleware('can:view_booking');
+
+    Route::get('update/detail/{id}', GetCarRentalForUpdateDetailController::class)
+        ->middleware('can:view_booking');
+
+    Route::post('update', UpdateCarRentalController::class)
+        ->middleware('can:view_booking');
+
 });
 
 Route::group(['middleware' => ['cors', 'json.response', 'auth:admin'], 'prefix' => 'why-us'], function () {
