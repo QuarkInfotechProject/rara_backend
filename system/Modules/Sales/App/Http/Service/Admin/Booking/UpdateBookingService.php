@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Product\App\Models\Product;
+use Modules\Sales\App\Models\AdditionalBookingProduct;
 use Modules\Sales\App\Models\Booking;
 use Modules\Shared\App\Events\AdminUserActivityLogEvent;
 use Modules\Shared\Constant\ActivityTypeConstant;
@@ -27,38 +28,65 @@ class UpdateBookingService
 
             $booking = Booking::findOrFail($validatedData['id']);
 
+            $product = Product::findOrFail($validatedData['product_id'] ?? $booking->product_id);
+            $isUser = auth()->check();
+
             $booking->update([
+                'product_id' => $validatedData['product_id'] ?? $booking->product_id,
                 'agent_id' => $validatedData['agent_id'] ?? $booking->agent_id,
+                'user_id' => $isUser ? auth()->id() : $booking->user_id,
+                'product_name' => $product->name,
+                'product_type' => $product->type,
                 'from_date' => $validatedData['from_date'] ?? $booking->from_date,
                 'to_date' => $validatedData['to_date'] ?? $booking->to_date,
-                'guest_no' => $validatedData['adult'] ?? $booking->guest_no,
+                'adult' => $validatedData['adult'] ?? $booking->adult,
                 'children' => $validatedData['children'] ?? $booking->children,
                 'infant' => $validatedData['infant'] ?? $booking->infant,
-                'type' => $validatedData['type'] ?? $booking->type,
+                'type' => $isUser ? 'inquiry' : 'custom',
+                'status' => $validatedData['status'] ?? $booking->status,
                 'fullname' => $validatedData['fullname'] ?? $booking->fullname,
                 'mobile_number' => $validatedData['mobile_number'] ?? $booking->mobile_number,
                 'email' => $validatedData['email'] ?? $booking->email,
                 'country' => $validatedData['country'] ?? $booking->country,
                 'note' => $validatedData['note'] ?? $booking->note,
-                'status' => $validatedData['status'] ?? $booking->note,
-                'ceo' => $data['ceo'] ?? null,
-                'group_name' => $data['group_name'],
-                'room_required' => $data['room_required'] ?? null,
-                'additional_note' => $data['additional_note'] ?? null,
+                'has_responded' => $validatedData['has_responded'] ?? $booking->has_responded,
+                'group_size' => $validatedData['group_size'] ?? $booking->group_size,
+                'preferred_date' => $validatedData['preferred_date'] ?? $booking->preferred_date,
+                'duration' => $validatedData['duration'] ?? $booking->duration,
+                'budget_range' => $validatedData['budget_range'] ?? $booking->budget_range,
+                'accommodation_preference' => $validatedData['accommodation_preference'] ?? $booking->accommodation_preference,
+                'transportation_preference' => $validatedData['transportation_preference'] ?? $booking->transportation_preference,
+                'preference_activities' => isset($validatedData['preference_activities'])
+                    ? json_encode($validatedData['preference_activities'])
+                    : $booking->preference_activities,
+                'special_message' => $validatedData['special_message'] ?? $booking->special_message,
+                'special_requirement' => $validatedData['special_requirement'] ?? $booking->special_requirement,
+                'desired_destination' => $validatedData['desired_destination'] ?? $booking->desired_destination,
             ]);
 
+            // Optional: regenerate ref_no if product changed
+            if ($booking->wasChanged('product_id')) {
+                $ref_no = sprintf(
+                    "%s-%s-%04d",
+                    now()->format('Ymd'),
+                    strtoupper(substr($product->type, 0, 8)),
+                    $booking->id
+                );
+                $booking->update(['ref_no' => $ref_no]);
+            }
+
+            // Update additional products
             if (isset($validatedData['additional_products'])) {
                 $this->updateAdditionalBookingProducts($booking, $validatedData['additional_products']);
             } else {
                 $booking->additionalBookingProducts()->delete();
             }
 
-            $user= $booking->user;
-
-            if ($user) {
-                $this->sendEmailOnTripCompleted($user);
-            }
-
+            // Send email if user exists
+            $user = $booking->user;
+//            if ($user) {
+//                $this->sendEmailOnTripCompleted($user);
+//            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -80,8 +108,8 @@ class UpdateBookingService
     {
         $booking->additionalBookingProducts()->whereNotIn('product_id', $additionalProducts)->delete();
 
-        foreach ($additionalProducts as $productData) {
-            $product = Product::findOrFail($productData);
+        foreach ($additionalProducts as $productId) {
+            $product = Product::findOrFail($productId);
 
             $booking->additionalBookingProducts()->updateOrCreate(
                 ['product_id' => $product->id],
@@ -98,49 +126,32 @@ class UpdateBookingService
         $rules = [
             'id' => 'required|exists:bookings,id',
             'product_id' => 'sometimes|exists:products,id',
-            'agent_id' => 'nullable|exists:agents,id',
             'from_date' => 'nullable|date',
             'to_date' => 'nullable|date|after_or_equal:from_date',
-            'adult' => 'sometimes|integer|min:1',
+            'adult' => 'sometimes|integer|min:0',
             'children' => 'nullable|integer|min:0',
             'infant' => 'nullable|integer|min:0',
-            'type' => 'sometimes|in:booking,inquiry',
+            'type' => 'sometimes|in:custom,inquiry',
             'fullname' => 'sometimes|string|max:255',
             'mobile_number' => 'sometimes|string|max:20',
             'email' => 'sometimes|email|max:255',
             'country' => 'sometimes|string|max:255',
-            'note' => 'nullable|string',
             'status' => 'required|string|in:pending,in-progress,confirmed,cancelled,completed,no-show',
-            'additional_products' => 'nullable|array',
-            'ceo' => 'nullable|string',
-            'group_name' => 'required|string|max:255',
             'room_required' => 'nullable|string',
-            'additional_note' => 'nullable|string',
+            'has_responded' => 'nullable|boolean',
+            'group_size' => 'nullable|string|max:255',
+            'preferred_date' => 'nullable|date',
+            'duration' => 'nullable|integer|min:1',
+            'budget_range' => 'nullable|string|max:255',
+            'accommodation_preference' => 'nullable|string',
+            'transportation_preference' => 'nullable|string',
+            'preference_activities' => 'nullable|array',
+            'special_message' => 'nullable|string',
+            'special_requirement' => 'nullable|string',
+            'desired_destination' => 'nullable|string',
         ];
 
-        $messages = [
-            'id.required' => 'The booking ID is required.',
-            'id.exists' => 'The specified booking does not exist.',
-            'product_id.exists' => 'The selected product does not exist.',
-            'agent_id.exists' => 'The selected agent does not exist.',
-            'from_date.date' => 'The start date must be a valid date.',
-            'to_date.date' => 'The end date must be a valid date.',
-            'to_date.after_or_equal' => 'The end date must be after or equal to the start date.',
-            'adult.integer' => 'The number of adults must be an integer.',
-            'adult.min' => 'There must be at least one adult.',
-            'children.integer' => 'The number of children must be an integer.',
-            'children.min' => 'The number of children cannot be negative.',
-            'infant.integer' => 'The number of infants must be an integer.',
-            'infant.min' => 'The number of infants cannot be negative.',
-            'type.in' => 'The booking type must be either "booking" or "inquiry".',
-            'fullname.string' => 'The full name must be a string.',
-            'mobile_number.string' => 'The mobile number must be a string.',
-            'email.email' => 'Please provide a valid email address.',
-            'country.string' => 'The country must be a string.',
-            'group_name.required' => 'Group Name is required.',
-        ];
-
-        $validator = Validator::make($data, $rules, $messages);
+        $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);
@@ -152,18 +163,19 @@ class UpdateBookingService
     private function sendEmailOnTripCompleted(User $user)
     {
         $template = EmailTemplate::where('name', 'trip_completed')->first();
+        if (!$template) return;
 
         $message = strtr($template->message, [
             '{FULLNAME}' => $user->full_name,
         ]);
 
-        $userForgotPasswordDTO = UserTripCompletedDTO::from([
+        $userDTO = UserTripCompletedDTO::from([
             'title' => $template->title,
             'subject' => $template->subject,
             'description' => $message,
             'email' => $user->email,
         ]);
 
-        Event::dispatch(new SendTripCompletedMail($userForgotPasswordDTO));
+        Event::dispatch(new SendTripCompletedMail($userDTO));
     }
 }
