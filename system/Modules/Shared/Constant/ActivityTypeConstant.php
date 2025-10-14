@@ -21,6 +21,10 @@ class ActivityTypeConstant
     public const FILE_CATEGORY_CREATED = 'File Category Created';
     public const FILE_CATEGORY_UPDATED = 'File Category Updated';
     public const FILE_CATEGORY_DESTROYED = 'File Category Destroyed';
+
+    public const POPUP_CREATED = 'Popup Created';
+    public const POPUP_UPDATED = 'Popup Updated';
+    public const POPUP_DESTROYED = 'Popup Destroyed';
     public const FILE_CREATED = 'File Created';
     public const FILE_UPDATED = 'File Updated';
     public const FILE_DESTROYED = 'File Destroyed';
