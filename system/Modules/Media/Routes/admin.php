@@ -12,6 +12,11 @@ use Modules\Media\App\Http\Controllers\FileCategory\FileCategoryIndexController;
 use Modules\Media\App\Http\Controllers\FileCategory\FileCategoryShowController;
 use Modules\Media\App\Http\Controllers\FileCategory\FileCategoryUpdateController;
 use Modules\Media\App\Http\Requests\FileCategory\FileCategoryCreateRequest;
+use Modules\Media\App\Http\Controllers\Popup\ShowPopupController;
+use Modules\Media\App\Http\Controllers\Popup\UpdatePopupController;
+use Modules\Media\App\Http\Controllers\Popup\IndexPopupController;
+use Modules\Media\App\Http\Controllers\Popup\DestroyPopupController;
+use Modules\Media\App\Http\Controllers\Popup\CreatePopupController;
 
 /*
     |--------------------------------------------------------------------------
@@ -58,5 +63,22 @@ Route::group(['middleware' => ['cors', 'json.response', 'auth:admin', 'can:view_
 
         Route::post('destroy', FileDestroyController::class)
         ->middleware('can:view_media_center');
+    });
+
+    Route::prefix('popup')->group(function() {
+        Route::get('/', IndexPopupController::class)
+            ->middleware('can:view_media_center');
+
+        Route::post('create', CreatePopupController::class)
+            ->middleware('can:view_media_center');
+
+        Route::get('show/{id}', ShowPopupController::class)
+            ->middleware('can:view_media_center');
+
+        Route::post('update', UpdatePopupController::class)
+            ->middleware('can:view_media_center');
+
+        Route::post('destroy', DestroyPopupController::class)
+            ->middleware('can:view_media_center');
     });
 });
