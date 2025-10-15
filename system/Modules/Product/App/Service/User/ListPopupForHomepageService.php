@@ -2,9 +2,6 @@
 
 namespace Modules\Product\App\Service\User;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Modules\Media\App\Models\Popup;
 
 class ListPopupForHomepageService
@@ -20,8 +17,10 @@ class ListPopupForHomepageService
                 'id' => $popup->id,
                 'name' => $popup->name,
                 'slug' => '/popup/' . $popup->slug,
-                'description' => $popup->description,
+                'status' => $popup->status,
                 'popupImage' => $this->getMediaFiles($popup, 'popupImage'),
+                'publishedDate' => $popup->created_at ? $popup->created_at->format('Y-m-d') : null,
+                'updated_at' => $popup->updated_at ? $popup->updated_at->format('Y-m-d') : null,
             ];
         });
     }
