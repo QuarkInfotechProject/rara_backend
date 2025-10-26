@@ -13,9 +13,9 @@ class ListProductOfDepartureService
     public function getProductsByDeparture(?string $search = null)
     {
         try {
-            $query = $this->getBaseQuery();
-
             $today = Carbon::today();
+
+            $query = $this->getBaseQuery($today);
 
             $query->whereHas('departures', function ($q) use ($today) {
                 $q->whereDate('departure_from', '>', $today);
@@ -31,6 +31,7 @@ class ListProductOfDepartureService
 
             $grouped = collect($transformed)
                 ->map(function ($product) {
+
                     $product->departures = collect($product->departures)
                         ->sortBy(fn($dep) => \Carbon\Carbon::parse($dep['from']))
                         ->values()
@@ -48,7 +49,7 @@ class ListProductOfDepartureService
         }
     }
 
-    private function getBaseQuery(): Builder
+    private function getBaseQuery(Carbon $today): Builder
     {
         $query = Product::query()
             ->select([
@@ -60,12 +61,14 @@ class ListProductOfDepartureService
             ])
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
-            // ->where('products.display_homepage', false)
             ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
             ->with([
                 'tags:id,name,slug',
                 'prices:product_id,number_of_people,original_price_usd,discounted_price_usd',
-                'departures:id,product_id,departure_from,departure_to,departure_per_price,max_team_members',
+                'departures' => function ($q) use ($today) {
+                    $q->whereDate('departure_from', '>', $today)
+                        ->select('id', 'product_id', 'departure_from', 'departure_to', 'departure_per_price', 'max_team_members');
+                },
             ]);
 
         $user = Auth::guard('user')->user();
@@ -86,9 +89,7 @@ class ListProductOfDepartureService
 
     private function transformProducts($products)
     {
-        $today = \Carbon\Carbon::today();
-
-        return $products->map(function ($product) use ($today) {
+        return $products->map(function ($product) {
 
             $product->tags = $product->tags->map(function ($tag) {
                 return [
@@ -106,8 +107,7 @@ class ListProductOfDepartureService
                 ];
             })->values()->toArray();
 
-            $product->departures = ($product->departures ?? collect())
-                ->filter(fn($dep) => \Carbon\Carbon::parse($dep->departure_from)->greaterThan($today))
+            $product->departures = collect($product->departures ?? [])
                 ->map(fn($dep) => [
                     'id'    => $dep->id,
                     'from'  => $dep->departure_from,
