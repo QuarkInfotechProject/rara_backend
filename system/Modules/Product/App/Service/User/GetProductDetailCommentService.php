@@ -35,8 +35,8 @@ class GetProductDetailCommentService
                         'country' => $review->user->country,
                         'email' => $review->user->email,
                     ] : [
-                        'id' => null,
-                        'name' => 'Guest',
+                        'id' => $review->id,
+                        'name' => $review->full_name,
                         'country' => null,
                         'email' => $review->email,
                     ],
