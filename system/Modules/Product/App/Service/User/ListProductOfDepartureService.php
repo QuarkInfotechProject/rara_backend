@@ -18,7 +18,7 @@ class ListProductOfDepartureService
             $today = Carbon::today();
 
             $query->whereHas('departures', function ($q) use ($today) {
-                $q->whereDate('departure_from', '>=', $today);
+                $q->whereDate('departure_from', '>', $today);
             });
 
             if (!empty($search)) {
@@ -31,14 +31,13 @@ class ListProductOfDepartureService
 
             $grouped = collect($transformed)
                 ->map(function ($product) {
-                    // sort departures by 'from' ASC inside each product
                     $product->departures = collect($product->departures)
                         ->sortBy(fn($dep) => \Carbon\Carbon::parse($dep['from']))
                         ->values()
                         ->toArray();
                     return $product;
                 })
-                ->sortBy('id') // sort products ASC by id
+                ->sortBy('id')
                 ->groupBy('type')
                 ->map(fn($items) => $items->sortBy('id')->values());
 
@@ -48,6 +47,7 @@ class ListProductOfDepartureService
             throw $exception;
         }
     }
+
     private function getBaseQuery(): Builder
     {
         $query = Product::query()
@@ -60,14 +60,13 @@ class ListProductOfDepartureService
             ])
             ->where('products.status', 'published')
             ->where('products.is_occupied', false)
-//            ->where('products.display_homepage', false)
+            // ->where('products.display_homepage', false)
             ->orderByRaw('CAST(products.display_order AS SIGNED) ASC')
             ->with([
                 'tags:id,name,slug',
                 'prices:product_id,number_of_people,original_price_usd,discounted_price_usd',
                 'departures:id,product_id,departure_from,departure_to,departure_per_price,max_team_members',
             ]);
-
 
         $user = Auth::guard('user')->user();
 
@@ -106,8 +105,9 @@ class ListProductOfDepartureService
                     'discounted_price_usd' => $price->discounted_price_usd,
                 ];
             })->values()->toArray();
+
             $product->departures = ($product->departures ?? collect())
-                ->filter(fn($dep) => \Carbon\Carbon::parse($dep->departure_from)->greaterThanOrEqualTo($today))
+                ->filter(fn($dep) => \Carbon\Carbon::parse($dep->departure_from)->greaterThan($today))
                 ->map(fn($dep) => [
                     'id'    => $dep->id,
                     'from'  => $dep->departure_from,
