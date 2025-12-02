@@ -1,4 +1,4 @@
 /volumes
 /.idea
-
+.env
 supervisord.log
