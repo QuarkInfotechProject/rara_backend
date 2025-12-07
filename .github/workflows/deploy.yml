@@ -1,0 +1,63 @@
+name: 🚀 Deploy Laravel App
+
+on:
+  push:
+    branches:
+      - main
+
+# Editable deployment values
+env:
+  SSH_HOST: "202.51.70.78"
+  SSH_USER: "ubuntu"
+  SSH_PORT: "22"
+
+  PROJECT_PATH: "/home/ubuntu/api/system"
+  BRANCH: "main"
+
+  PHP_PATH: "/usr/bin/php"
+  COMPOSER_PATH: "/usr/bin/composer"
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🔐 SSH + Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          port: ${{ env.SSH_PORT }}
+          key: ${{ secrets.SERVER_SSH_KEY }} # ssh key already working
+          script_stop: false
+
+          # IMPORTANT: pass env vars inside SSH session
+          envs: PROJECT_PATH,BRANCH,PHP_PATH,COMPOSER_PATH
+
+          script: |
+            echo "🚀 Starting Laravel deployment..."
+
+            echo "📁 Entering project directory: $PROJECT_PATH"
+            cd $PROJECT_PATH || { echo "❌ Directory not found"; exit 1; }
+
+            echo "🔄 Pulling latest code..."
+            git pull origin $BRANCH || { echo '❌ Git pull failed'; exit 1; }
+
+            echo "📦 Installing composer dependencies..."
+            $PHP_PATH $COMPOSER_PATH install --no-interaction --prefer-dist --optimize-autoloader
+
+            echo "🔑 Generating key (safe)..."
+            $PHP_PATH artisan key:generate || true
+
+            echo "🛠 Running migrations..."
+            $PHP_PATH artisan migrate --force
+
+            echo "🧹 Clearing and optimizing..."
+            $PHP_PATH artisan optimize:clear
+            $PHP_PATH artisan config:cache
+
+            echo "🎉 Laravel Deployment Complete!"
