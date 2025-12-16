@@ -240,10 +240,10 @@
         ]
     },
     {
-        "title": "newsletter",
+        "title": "Newsletter",
         "sort_order": 17,
         "icon": "newsletter",
-        "url": "/admin/newsletter",
+        "url": "/newsletter",
         "permission_name": "view_newsletter",
         "status": 1
     }
