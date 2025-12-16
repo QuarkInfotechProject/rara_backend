@@ -40,14 +40,6 @@
         "status": 0
     },
     {
-        "title": "Admin Users",
-        "sort_order": 20,
-        "icon": "users",
-        "url": "/admin/admin-users",
-        "permission_name": "view_admin_users",
-        "status": 1
-    },
-    {
         "title": "Users",
         "sort_order": 16,
         "icon": "users",
@@ -246,5 +238,13 @@
                 "status": 1
             }
         ]
+    },
+    {
+        "title": "newsletter",
+        "sort_order": 17,
+        "icon": "newsletter",
+        "url": "/admin/newsletter",
+        "permission_name": "view_newsletter",
+        "status": 1
     }
 ]

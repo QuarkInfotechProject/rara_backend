@@ -38,6 +38,7 @@ class AdminUserPermissionsSeeder extends Seeder
             'view_email_templates',
             'view_setting_configurations',
             'view_roles',
+            'view_newsletter'
         ];
 
         // Create base permissions

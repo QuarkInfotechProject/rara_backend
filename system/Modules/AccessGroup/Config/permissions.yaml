@@ -133,6 +133,12 @@
   section: Cache
   isIndex: 1
 
+# Permission related to Newsletter
+- name: view_newsletter
+  description: can view newsletter subscribers
+  section: Newsletter
+  isIndex: 1
+
 
 
 
