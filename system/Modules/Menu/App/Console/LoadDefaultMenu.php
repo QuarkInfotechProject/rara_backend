@@ -44,11 +44,13 @@ class LoadDefaultMenu extends Command
                 DB::table('menus')
                     ->where('id', $existingItem->id)
                     ->update([
+                        'title' => $item['title'],
                         'url' => $item['url'],
                         'icon' => $item['icon'],
                         'permission_name' => $item['permission_name'],
                         'sort_order' => $item['sort_order'],
-                        'status' => $item['status']
+                        'status' => $item['status'],
+                        'parent_id' => $parentId,
                     ]);
 
                 $itemId = $existingItem->id;
