@@ -12,15 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('popups', function (Blueprint $table) {
-            Schema::create('popups', function (Blueprint $table) {
-                $table->id();
-                $table->string('name');
-                $table->string('slug')->unique();
-                $table->text('description')->nullable();
-                $table->boolean('status')->nullable()->default(0);
-                $table->softDeletes();
-                $table->timestamps();
-            });
+            $table->id();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->boolean('status')->nullable()->default(0);
+            $table->softDeletes();
+            $table->timestamps();
         });
     }
 
