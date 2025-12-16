@@ -43,7 +43,7 @@
         "title": "Users",
         "sort_order": 16,
         "icon": "users",
-        "url": "/admin/users",
+        "url": "/users",
         "permission_name": "view_user",
         "status": 1
     },
