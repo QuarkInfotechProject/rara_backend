@@ -50,7 +50,7 @@
     {
         "title": "Media Center",
         "sort_order": 5,
-        "icon": "photo-scan",
+        "icon": "brand-vlc",
         "url": "/media",
         "permission_name": "view_media_center",
         "status": 1
@@ -95,14 +95,6 @@
                 "icon": "browser",
                 "url": "/pages",
                 "permission_name": "view_pages",
-                "status": 1
-            },
-            {
-                "title": "WhyUs",
-                "sort_order": 2,
-                "icon": "help-octagon",
-                "url": "/why-us",
-                "permission_name": "view_why_us",
                 "status": 1
             },
             {
@@ -156,10 +148,10 @@
                 "status": 1
             },
             {
-                "title": "Manager",
+                "title": "Category",
                 "sort_order": 2,
-                "icon": "user",
-                "url": "/product/manager",
+                "icon": "category",
+                "url": "/product/category",
                 "permission_name": "view_product",
                 "status": 1
             },
@@ -172,34 +164,26 @@
                 "status": 1
             },
             {
-                "title": "Homestay",
-                "sort_order": 4,
-                "icon": "home",
-                "url": "/product/homestay",
-                "permission_name": "view_product",
-                "status": 1
-            },
-            {
-                "title": "Experience",
-                "sort_order": 5,
-                "icon": "car",
-                "url": "/product/experience",
-                "permission_name": "view_product",
-                "status": 1
-            },
-            {
-                "title": "Circuit",
+                "title": "Trek",
                 "sort_order": 6,
-                "icon": "bus",
-                "url": "/product/circuit",
+                "icon": "trekking",
+                "url": "/product/trek",
                 "permission_name": "view_product",
                 "status": 1
             },
             {
-                "title": "Package",
-                "sort_order": 7,
-                "icon": "package",
-                "url": "/product/package",
+                "title": "Tour",
+                "sort_order": 8,
+                "icon": "bus",
+                "url": "/product/tour",
+                "permission_name": "view_product",
+                "status": 1
+            },
+            {
+                "title": "Activities",
+                "sort_order": 9,
+                "icon": "activity",
+                "url": "/product/activities",
                 "permission_name": "view_product",
                 "status": 1
             }
@@ -242,9 +226,17 @@
     {
         "title": "Newsletter",
         "sort_order": 17,
-        "icon": "newsletter",
+        "icon": "news",
         "url": "/newsletter",
         "permission_name": "view_newsletter",
+        "status": 1
+    },
+    {
+        "title": "Pop Media",
+        "sort_order": 4,
+        "icon": "contrast-2",
+        "url": "/popup",
+        "permission_name": "view_media_center",
         "status": 1
     }
 ]
