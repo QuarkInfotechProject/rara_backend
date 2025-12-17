@@ -50,7 +50,7 @@
     {
         "title": "Media Center",
         "sort_order": 5,
-        "icon": "brand-vlc",
+        "icon": "polaroid",
         "url": "/media",
         "permission_name": "view_media_center",
         "status": 1
@@ -116,7 +116,7 @@
             {
                 "title": "FAQs",
                 "sort_order": 3,
-                "icon": "bubble-text",
+                "icon": "question-mark",
                 "url": "/faqs",
                 "permission_name": "view_faqs",
                 "status": 1
@@ -237,6 +237,14 @@
         "icon": "contrast-2",
         "url": "/popup",
         "permission_name": "view_media_center",
+        "status": 1
+    },
+    {
+        "title": "Admin Users",
+        "sort_order": 20,
+        "icon": "users",
+        "url": "/admin-users",
+        "permission_name": "view_admin_users",
         "status": 1
     }
 ]
