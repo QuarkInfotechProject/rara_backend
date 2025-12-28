@@ -10,7 +10,7 @@ class MenuService
 {
     function index()
     {
-        $user = auth()->user();
+        $user = auth('admin')->user();
 
         $menuItems = Menu::where('status', true)
             ->when(!$user->hasRole('Super Admin'), function ($query) use ($user) {
