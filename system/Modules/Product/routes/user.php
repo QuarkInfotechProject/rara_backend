@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Product\App\Http\Controllers\Product\ProductDropdownController;
 use Modules\Product\App\Http\Controllers\User\Product\FetchProductListController;
 use Modules\Product\App\Http\Controllers\User\Product\FetchTagsAsProductController;
 use Modules\Product\App\Http\Controllers\User\Product\GetProductDetailController;
@@ -24,6 +25,7 @@ use Modules\Product\App\Http\Controllers\User\Product\ListAdventuresProductForHo
 use Modules\Product\App\Http\Controllers\User\Product\ListExploreProductForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListNavbarForHomepageController;
 use Modules\Product\App\Http\Controllers\User\Product\ListPopupForHomepageController;
+
 /*
     |--------------------------------------------------------------------------
     | API Routes
@@ -36,6 +38,9 @@ use Modules\Product\App\Http\Controllers\User\Product\ListPopupForHomepageContro
 */
 
 Route::group(['middleware' => ['cors', 'json.response'], 'prefix' => 'product'], function () {
+
+    Route::get('/dropdown', ProductDropdownController::class);
+    
     Route::post('list', FetchProductListController::class)->middleware('optional.auth');
 
     Route::get('tags/{product}', FetchTagsAsProductController::class);
